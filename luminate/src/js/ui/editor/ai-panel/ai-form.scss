@@ -1,0 +1,99 @@
+@use 'three-dots' with (
+  $dot-width: 10px,
+  $dot-height: 10px,
+);
+
+$animation-duration: 0.4s;
+$animation-ease: ease;
+$transition-duration: 0.3s; 
+
+// .scale-in {
+//   animation: scaleIn $animation-duration $animation-ease;
+// }
+
+// .scale-out {
+//   animation: scaleOut $animation-duration $animation-ease;
+// }
+
+// Define transition for .ai-panel
+.ai-panel {
+  transition: opacity $transition-duration $animation-ease, transform $transition-duration $animation-ease;
+  position: absolute;
+  bottom: 29px;
+  left: 20px;
+  width: calc(28%);
+  z-index: 100;
+}
+
+#context-div{
+  background: #fff;
+  backdrop-filter: blur(6px);
+  border-radius: 12px;
+  border: 2px solid #eee;
+  outline: 'none';
+  box-shadow: 0 0 35px 4px rgba(0,0,0,0.1);
+  padding: 24px 24px 24px 12px;
+  margin-bottom: 12px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  opacity: 0; /* Initially hidden */
+  transform: scale(0.8); /* Initially scaled down */
+  transition: opacity 0.3s ease, transform 0.3s ease;
+
+  #close-button{
+      position: absolute;
+      padding: 12px 12px 12px 12px;
+      top: 8px;
+      right: 8px;
+      background: #fff;
+      height: 12px;
+      width: 12px;
+      color: #cb5353;
+      border: none;
+      cursor: pointer;
+  }
+}
+
+#context-div.show {
+  opacity: 1;
+  transform: scale(1);
+}
+
+#dimension-info{
+  background: #fff;
+  backdrop-filter: blur(6px);
+  border-radius: 12px;
+  border: 2px solid #eee;
+  outline: 'none';
+  // color: #aaa;
+  box-shadow: 0 0 35px 4px rgba(0,0,0,0.1);
+  padding: 24px 24px 24px 12px;
+  margin-bottom: 12px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  opacity: 0; /* Initially hidden */
+  height : 0 ; /* Initially hidden */
+  transform: scale(0.8); /* Initially scaled down */
+  transition: opacity 0.3s ease, transform 0.3s ease;
+
+  #dimension-close-button{
+      position: absolute;
+      padding: 12px 12px 12px 12px;
+      top: 8px;
+      right: 8px;
+      background: #fff;
+      height: 12px;
+      width: 12px;
+      color: #cb5353;
+      border: none;
+      cursor: pointer;
+  }
+}
+
+#dimension-info.show {
+  opacity: 1;
+  transform: scale(1);
+  height : 100% ;
+}

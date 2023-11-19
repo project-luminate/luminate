@@ -1,0 +1,25 @@
+.app-bar-container{
+    height: '64px';
+    background: #fff;
+    backdrop-filter: blur(6px);
+    border: 2px solid #eee;
+    outline: 'none';
+    box-shadow: 0 0 8px 4px rgba(0,0,0,0.1);
+    padding: 4px 48px 4px 12px;
+    margin-bottom: 12px;
+    width: 100%;
+    display: flex;
+
+    .appbar-item {
+        background: #ffffff99;
+        backdrop-filter: blur(6px);
+        border-radius: 12px;
+        border: 2px solid #eee;
+        outline: none;
+        box-shadow: 0 0 35px 4px rgba(0,0,0,0.1);
+        box-shadow: none;
+        margin: 0 4px 0 4px;
+        width: 42px;
+        height: 42px;
+    }
+}

@@ -1,0 +1,214 @@
+.variation-block {
+}
+.block {
+  will-change: transform opacity width height scale;
+  // transition: 0.4s ease;
+  transition: opacity 0.3s ease;
+}
+.block > * {
+  will-change: transform opacity width height scale;
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.block-dot:hover, .block-labels:hover, .block-title:hover, .block-sum:hover, .block-full:hover {
+  background-color: #f6ed8c98;
+  cursor: pointer;
+  z-index: 100000000;
+  outline: 3px solid #444444aa;
+  transition: outline 0.2s ease outline-offset 0.2s ease;
+}
+
+.block-dot {
+  width: 12px;
+  height: 12px;
+  overflow: hidden;
+  border-radius: 30px;
+  background: #ccc;
+  outline: 3px solid #00000000;
+  outline-offset: 3px;
+  will-change: transform opacity width height scale;
+  transition: background-color 0.3s ease, cursor 0.3s ease, box-shadow 0.3s ease, outline 0.2s ease, outline-offset 0.2s ease, width 0.3s ease, height 0.3s ease;
+
+}
+
+.block-labels {
+  width: fit-content;
+  max-width: 200px;
+  height: fit-content;
+  overflow: hidden;
+  padding: 8px;
+  border-radius: 16px;
+  outline: 3px solid #00000000;
+  outline-offset: 3px;
+  background: #cccccc55;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  will-change: transform opacity width height scale;
+  transition: background-color 0.3s ease, cursor 0.3s ease, box-shadow 0.3s ease, outline 0.2s ease, outline-offset 0.2s ease, width 0.3s ease, height 0.3s ease;
+}
+
+.block-title {
+  width: fit-content;
+  height: fit-content;
+  overflow: hidden;
+  padding: 8px;
+  border-radius: 16px;
+  outline: 3px solid #00000000;
+  outline-offset: 3px;
+  background: #cccccc55;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  will-change: transform opacity width height scale;
+  transition: background-color 0.3s ease, cursor 0.3s ease, box-shadow 0.3s ease, outline 0.2s ease, outline-offset 0.2s ease, width 0.3s ease, height 0.3s ease;
+  .labels {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+.block-sum {
+  width: 300px;
+  padding: 12px;
+  border-radius: 16px;
+  outline: 3px solid #00000000;
+  outline-offset: 3px;
+  background: #cccccc55;
+  will-change: transform opacity width height scale;
+  transition: background-color 0.3s ease, cursor 0.3s ease, box-shadow 0.3s ease, outline 0.2s ease, outline-offset 0.2s ease, width 0.3s ease, height 0.3s ease;
+
+  p {
+    padding: 0 8px;
+  }
+}
+
+.block-full {
+  width: 480px;
+  padding: 12px;
+  border-radius: 16px;
+  outline: 3px solid #00000000;
+  outline-offset: 3px;
+  background: #cccccc55;
+  will-change: transform opacity width height scale;
+  transition: background-color 0.3s ease, cursor 0.3s ease, box-shadow 0.3s ease, outline 0.2s ease, outline-offset 0.2s ease, width 0.3s ease, height 0.3s ease;
+
+  p {
+    padding: 0 8px;
+  }
+  .related-sentences {
+    h6 {
+      margin: 4px 0;
+    }
+    margin: 12px 8px;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.labels {
+  width: 100%;
+  height: fit-content;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.selected-label {
+  transition: scale 0.1s ease;
+}
+
+.details-footer {
+  width: 100%;
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+  button {
+    border: none;
+    background: white;
+    border: 2px solid #444444aa;
+    border-radius: 8px;
+    padding: 2px 6px;
+    margin-right: 3px;
+    .icon-button {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 4px;
+    }
+  }
+}
+
+@keyframes scaleIn {
+  0% {
+    // opacity: 0.5;
+    scale: 0.8;
+  }
+  1% {
+    // opacity: 1;
+  }
+  100% {
+    scale: 1;
+  }
+}
+
+.scale-in {
+  animation: scaleIn 0.4s ease;
+}
+
+@keyframes scaleOut {
+  0% {
+    // opacity: 0.5;
+    scale: 1.2;
+  }
+  1% {
+    // opacity: 1;
+  }
+  100% {
+    scale: 1;
+  }
+}
+
+.scale-out {
+  animation: scaleOut 0.4s ease;
+}
+
+.centered-title {
+  margin-bottom: 5px;
+  text-align: center;
+  width: 100%;
+}
+
+.content-section {
+  text-align: left;
+}
+
+.summary-title {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.keywords-title {
+  margin-bottom: 5px;
+}
+
+.keyword-list {
+  margin-top: 5px; 
+}
+
+.red-shadow {
+  outline: 3px solid #444444aa;
+  outline-offset: 3px;
+  // box-shadow: 0 0 10px rgb(74, 74, 74); 
+}
+
+.low-opacity {
+  opacity: 0.2;
+  transition: opacity 0.4s ease;
+}

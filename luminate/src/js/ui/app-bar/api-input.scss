@@ -1,0 +1,53 @@
+.api-input-button {
+    background: #ffffff99;
+    backdrop-filter: blur(6px);
+    border-radius: 12px;
+    border: 2px solid #eee;
+    outline: none;
+    box-shadow: 0 0 35px 4px rgba(0,0,0,0.1);
+    box-shadow: none;
+    margin: 0 4px 0 4px;
+    width: 42px;
+    height: 42px;
+}
+
+.api-input-modal{
+    border-radius: 4px;
+    
+    .note{
+        // make the color gray
+        color: #999;
+    }
+
+    .submit-button{
+        background: #ffffff99;
+        color : #333;
+        backdrop-filter: blur(6px);
+        border-radius: 12px;
+        border: 2px solid #eee;
+        outline: none;
+        box-shadow: 0 0 35px 4px rgba(0,0,0,0.1);
+        box-shadow: none;
+        margin: 0 0 2px 0;
+        height: 42px;
+        width: 100%;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .submit-button:hover{
+        background: #ffffff99;
+        backdrop-filter: blur(6px);
+        border-radius: 12px;
+        border: 2px solid #eee;
+        outline: none;
+        background-color:#99999999;
+        box-shadow: 0 0 35px 4px rgba(0,0,0,0.1);
+        color : #333;
+        box-shadow: none;
+        margin: 2px 0 0 0;
+        height: 42px;
+        width: 100%;
+        transition: all 0.2s ease-in-out;
+    }
+    
+}
