@@ -1,6 +1,8 @@
 # luminate
 Luminate - an interactive system that enables structured generation and exploration of LLM outputs
 
+required: node.js v14.17.0
+
 ## Installation
 
 If running for the first time, install dependencies:

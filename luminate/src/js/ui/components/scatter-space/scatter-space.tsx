@@ -124,7 +124,8 @@ export const ScatterSpace = ({camera, setCamera}) => {
               })
             }
             setLoadingGrow(true);
-            const prompt = DatabaseManager.getBlock(currId)?.Title;
+            const block = DatabaseManager.getBlock(currId);
+            const prompt = block ? block["prompt"] : "";
             growSpace(currId, dimensionMap, axisLabels, 5, prompt, nodeMap, setNodeMap).then(data => {
               setLoadingGrow(false);
             })

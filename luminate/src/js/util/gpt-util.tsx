@@ -109,7 +109,7 @@ async function generateCategoricalDimensions(prompt, catNum, valNum, temperature
           stream: false
         }),
       });
-    const reader = response.body?.pipeThrough(new TextDecoderStream()).getReader();
+    const reader : any = response.body?.pipeThrough(new TextDecoderStream()).getReader();
     const {value, done} = await reader.read();
     console.log("categorical dimensions", JSON.parse(value)["choices"][0]["text"]);
     return JSON.parse(value)["choices"][0]["text"];
@@ -140,7 +140,7 @@ async function generateOrdinalDimensions(prompt, catNum){
         stream: false
       }),
     });
-  const reader = response.body?.pipeThrough(new TextDecoderStream()).getReader();
+  const reader : any = response.body?.pipeThrough(new TextDecoderStream()).getReader();
   const {value, done} = await reader.read();
   console.log("ordinal dimensions", JSON.parse(value)["choices"][0]["text"]);
   return JSON.parse(value)["choices"][0]["text"];
@@ -173,7 +173,7 @@ async function generateNumericalDimensions(prompt, numNum){
         presence_penalty: 0,
       }),
     });
-    const reader = response.body?.pipeThrough(new TextDecoderStream()).getReader();
+    const reader:any = response.body?.pipeThrough(new TextDecoderStream()).getReader();
     const {value, done} = await reader.read();
     console.log("numerical dimensions", JSON.parse(value)["choices"][0]["text"]);
     return JSON.parse(value)["choices"][0]["text"];
@@ -228,7 +228,7 @@ async function getRelatedTextBasedOnDimension(dimension, val, text){
         presence_penalty: 0,
       }),
     });
-    const reader = response.body?.pipeThrough(new TextDecoderStream()).getReader();
+    const reader : any= response.body?.pipeThrough(new TextDecoderStream()).getReader();
     const {value, done} = await reader.read();
     return JSON.parse(value)["choices"][0]["text"];
 }
@@ -274,7 +274,7 @@ async function getKeyTextBasedOnDimension(kvPairs, text){
       presence_penalty: 0,
     }),
   });
-  const reader = response.body?.pipeThrough(new TextDecoderStream()).getReader();
+  const reader : any  = response.body?.pipeThrough(new TextDecoderStream()).getReader();
   const {value, done} = await reader.read();
   let result  = JSON.parse(value)["choices"][0]["text"]
   // only grep the {} part

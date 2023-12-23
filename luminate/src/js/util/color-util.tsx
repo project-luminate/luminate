@@ -61,11 +61,11 @@ function colLerp(V, W, t) {
 }
 
 // one categorical, one numerical
-export function getColor(color, t){
-    let white = [255,255,255]
-    let Rgb = hexToRgb(color)
-    Rgb = [Rgb.red, Rgb.green, Rgb.blue]
-    return colLerp(white, Rgb, t)
+export function getColor(color: string, t: number) {
+    const white = { red: 255, green: 255, blue: 255 };
+    const Rgb = hexToRgb(color);
+    const rgbArray = [Rgb.red, Rgb.green, Rgb.blue];
+    return colLerp(white, rgbArray, t);
 }
 
 // two numerical

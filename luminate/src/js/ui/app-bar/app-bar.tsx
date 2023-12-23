@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { createRoot } from "react-dom/client";
 import {Settings, Info, Help, SupportAgent, Support} from '@mui/icons-material';
 import { Tooltip, AppBar, Toolbar} from "@mui/material"
 import { ApiInputModal } from './api-input';

@@ -6,16 +6,24 @@ import path from 'path';
 const DIM = "dimensions";
 const DATA = "data";
 const BLOCK = "block";
-const FAV = "favorite";
+const PARAM = "parameters";
 const CURR = "current";
 
+/*
+A class that manages the local storage
+    DIM: dimensions
+    DATA: data
+    BLOCK: block
+    FAV: favorite @deprecated
+    CURR: current @reserved
+*/
 export default class DatabaseManager {
     // use the test data
     static initTestData() {
         DatabaseManager.storePair(DIM, {"0": dimensions});
         DatabaseManager.storePair(DATA, {"0":data});
         DatabaseManager.storePair(BLOCK, {"0":0})
-        DatabaseManager.storePair(FAV, {"0":null})
+        DatabaseManager.storePair(PARAM, {"batch":40, "dim":5})
     }
 
     // store the data into the local storage
@@ -35,7 +43,7 @@ export default class DatabaseManager {
 
     /* ************************************ BLOCK ************************************ */
     static postBlock(id, prompt, content, responseId) {
-        const block = JSON.parse(localStorage.getItem(BLOCK));
+        const block  = JSON.parse(localStorage.getItem(BLOCK));
         // if the id is not in the local storage, create a new id
         if (!block[id]) {
             block[id] = {};
@@ -179,70 +187,4 @@ export default class DatabaseManager {
         });
         DatabaseManager.storePair(DATA, data);
     }
-
-
-    /* ************************************ FAVORITE ************************************ */
-
-    static postFavorite(id, value) {
-        var favorite = JSON.parse(localStorage.getItem(FAV));
-        // if favorite is null, create a new favorite
-        if (favorite[id] === undefined) {
-            favorite[id] = {};
-        }
-        // if the value is already in the favorite, skip
-        if (favorite[id][value.ID] !== undefined) {
-            return;
-        }
-        // append the new favorite to the array
-        console.log(value)
-        const key = value.ID;
-        favorite[id][key] = value;
-        DatabaseManager.storePair(FAV, favorite);
-    }
-
-    static deleteFavorite(id, key) {
-        var favorite = JSON.parse(localStorage.getItem(FAV));
-        if (!this.isInFavorite(id, key)) {
-            return;
-        }
-        delete favorite[id][key];
-        DatabaseManager.storePair(FAV, favorite);
-    }
-
-    static isInFavorite(id, key) {
-        var favorite = JSON.parse(localStorage.getItem(FAV));
-        // check if favorite is null
-        if (favorite === null) {
-            return false;
-        }
-        // check if the id is in the favorite
-        if (favorite[id] === undefined) {
-            return false;
-        }
-        // check if the key is in the favorite id
-        if (favorite[id][key] === undefined) {
-            return false;
-        }
-        return true;
-    }
-
-    static getAllFavorite(id) {
-        var favorite = JSON.parse(localStorage.getItem(FAV));
-        // check if favorite is null
-        if (favorite === null) {
-            return {};
-        }
-        // check if the id is in the favorite
-        if (favorite[id] === undefined) {
-            return {};
-        }
-        return favorite[id];
-    }
-
-    static updateEnv (key, value) {
-        const envPath = path.resolve(process.cwd(), '.env');
-        const envContents = fs.readFileSync(envPath, 'utf-8');
-        const newEnvContents = envContents.replace(new RegExp(`^${key}=.*`, 'm'), `${key}=${value}`);
-        fs.writeFileSync(envPath, newEnvContents);
-    };
 }

@@ -3,21 +3,18 @@ import { Modal, Box, Typography, TextField, Button, Tooltip } from '@mui/materia
 import {Settings} from '@mui/icons-material';
 import './api-input.scss';
 import '../../db/database-manager';
-import DatabaseManager from '../../db/database-manager';
 
 
 export function ApiInputModal() {
   const [open, setOpen] = useState(false);
 
-  const handleOpen = () => {
-    setOpen(true);
-    console.log('open');
-  }
+  const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.target.value);
+    console.log(data.getAll('openai-api'));
     console.log(data.get('openai-api'));
     console.log('Settings saved');
     handleClose();
@@ -35,7 +32,7 @@ export function ApiInputModal() {
         open={open}
         onClose={handleClose}
         aria-labelledby="setting-modal"
-        aria-describedby="etting-modal-api-key-and-batch-size"
+        aria-describedby="setting-modal-api-key-and-batch-size"
         className='api-input-modal'
       >
         <Box
@@ -56,22 +53,28 @@ export function ApiInputModal() {
             <TextField
               variant="outlined"
               margin="normal"
-              required
               fullWidth
               id="openai-api"
               label="Enter your OpenAPI Key"
               name="input"
+              // defaultValue={localStorage.getItem('openai-api')}
               autoFocus
             />
             <TextField
               variant="outlined"
               margin="normal"
-              required
               fullWidth
               id="batch-size"
               label="Generation Batch Size"
               name="input"
-              autoFocus
+            />
+            <TextField
+              variant="outlined"
+              margin="normal"
+              fullWidth
+              id="num-dims"
+              label="Number of Dimensions"
+              name="input"
             />
             <p className='note'>
               Luminate will not save your OpenAI API key neither in a cookie, localStorage, nor server. 

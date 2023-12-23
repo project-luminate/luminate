@@ -1,22 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Tooltip, Typography, Alert, ButtonGroup, InputBase, Paper, Divider  } from '@mui/material';
+import { Typography, InputBase, Paper,} from '@mui/material';
 
 import IconButton from '@mui/material/IconButton';
 import SendIcon from '@mui/icons-material/Send';
-import TaskIcon from '@mui/icons-material/Task';
 import CloseIcon from '@mui/icons-material/Close';
-import TravelExploreIcon from '@mui/icons-material/TravelExplore';
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-import TuneIcon from '@mui/icons-material/Tune';
-import AutorenewIcon from '@mui/icons-material/Autorenew';
 
 
 import * as GPTUtil from '../../../util/gpt-util';
 import * as SpaceUtil from '../../../util/space-generation-util';
-import Editor from '../text-editor';
 import DatabaseManager from '../../../db/database-manager';
-import useResponseStore from '../../../store/use-response-store.jsx';
-import useCurrStore from '../../../store/use-curr-store.jsx';
+import useResponseStore from '../../../store/use-response-store';
+import useCurrStore from '../../../store/use-curr-store';
 import useSelectedStore from '../../../store/use-selected-store';
 import useEditorStore from '../../../store/use-editor-store';
 import * as bootstrap from 'bootstrap';
