@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Modal, Box, Typography, TextField, Button, Tooltip } from '@mui/material';
 import {Settings} from '@mui/icons-material';
+import { saveEnvVal } from '../../util/util';
+import DatabaseManager from '../../db/database-manager';
 import './api-input.scss';
 import '../../db/database-manager';
 
@@ -13,10 +15,10 @@ export function ApiInputModal() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const data = new FormData(event.target.value);
-    console.log(data.getAll('openai-api'));
-    console.log(data.get('openai-api'));
-    console.log('Settings saved');
+    const data = new FormData(event.target);
+    const apiToken = data.get('openai-api');
+    // save data into env variables
+    saveEnvVal('VITE_OPENAI_API_KEY', apiToken as string);
     handleClose();
   };
 
@@ -56,8 +58,8 @@ export function ApiInputModal() {
               fullWidth
               id="openai-api"
               label="Enter your OpenAPI Key"
-              name="input"
-              // defaultValue={localStorage.getItem('openai-api')}
+              name="openai-api"
+              defaultValue={import.meta.env.VITE_OPENAI_API_KEY}
               autoFocus
             />
             <TextField
@@ -66,7 +68,8 @@ export function ApiInputModal() {
               fullWidth
               id="batch-size"
               label="Generation Batch Size"
-              name="input"
+              defaultValue={DatabaseManager.getBatchSize()}
+              name="batch-size"
             />
             <TextField
               variant="outlined"
@@ -74,7 +77,8 @@ export function ApiInputModal() {
               fullWidth
               id="num-dims"
               label="Number of Dimensions"
-              name="input"
+              defaultValue={DatabaseManager.getDimensionSize()}
+              name="num-dims"
             />
             <p className='note'>
               Luminate will not save your OpenAI API key neither in a cookie, localStorage, nor server. 

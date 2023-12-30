@@ -4,14 +4,18 @@ import { LuminateAppBar } from './js/ui/app-bar/app-bar';
 import { ToastContainer } from './js/ui/toasts';
 import Editor from './js/ui/editor/text-editor';
 import AiForm from './js/ui/editor/ai-panel/ai-form';
-import ContactModal from "./js/ui/app-bar/contact";
+import { WelcomeModal } from './js/ui/welcome-modal';
 
 function App() {
   return (
     <>
-    {
-      if 
-    }
+    {import.meta.env.VITE_OPENAI_API_KEY ? (
+      /* Render your main component here */
+      <></>
+    ) : (
+      /* Render the WelcomeModal when there's no env value */
+      <WelcomeModal />
+    )}
     <div className="Luminate">
       <LuminateAppBar />
       <div className="container-fluid">

@@ -4,40 +4,31 @@
 import React, { useState } from 'react';
 import { Modal, Box, Typography, TextField, Button, Tooltip } from '@mui/material';
 import {Settings} from '@mui/icons-material';
-import './api-input.scss';
-import '../../db/database-manager';
+import './welcome-modal.scss';
+import DatabaseManager from '../db/database-manager';
 
+export function WelcomeModal() {
+  const [open, setOpen] = useState(true);
 
-export function ApiInputModal() {
-  const [open, setOpen] = useState(false);
-
-  const handleOpen = () => {
-    setOpen(true);
-    console.log('open');
-  }
+  const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const data = new FormData(event.target.value);
-    console.log(data.get('openai-api'));
-    console.log('Settings saved');
+    const data = new FormData(event.target);
+    const apiToken = data.get('openai-api');
+    // save data into env variables
+    saveEnvVal('VITE_OPENAI_API_KEY', apiToken as string);
     handleClose();
   };
 
   return (
     <div>
-      <Tooltip title="Settings">
-        <button className="api-input-button" onClick={handleOpen}>
-              <Settings style={{color: '#aaa'}} />
-        </button>
-      </Tooltip>
-      
       <Modal
         open={open}
         onClose={handleClose}
         aria-labelledby="setting-modal"
-        aria-describedby="etting-modal-api-key-and-batch-size"
+        aria-describedby="setting-modal-api-key-and-batch-size"
         className='api-input-modal'
       >
         <Box
@@ -53,7 +44,10 @@ export function ApiInputModal() {
             borderRadius: 3
           }}
         >
-          <h4>Settings</h4>
+          <h4>Welcome to Luminate 👋</h4>
+          <p>
+            Luminate is a research tool for brainstorming and writing.
+          </p>
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
             <TextField
               variant="outlined"
@@ -62,16 +56,6 @@ export function ApiInputModal() {
               fullWidth
               id="openai-api"
               label="Enter your OpenAPI Key"
-              name="input"
-              autoFocus
-            />
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              id="batch-size"
-              label="Generation Batch Size"
               name="input"
               autoFocus
             />

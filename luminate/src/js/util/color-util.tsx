@@ -134,6 +134,7 @@ export const hexAvgTwoNum = (a, b, aT, bT) => {
 
     return rgbArrayToHex(finalColor);
 }
+
 /**
  * Given two colors, two normalized values, return the balanced average between the two colors.
  * If both 0, return gray, if both 1 return even mix of both colors. If 1,0, return color 1, if 0,1, return color 2.
@@ -148,7 +149,6 @@ export const hexAvgTwoNum = (a, b, aT, bT) => {
 //       // Update such that there are two axes 
 
 // }
-
 
 
 export const normalizedValue = ([min, max], v) => {

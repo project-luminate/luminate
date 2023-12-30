@@ -6,7 +6,8 @@ import path from 'path';
 const DIM = "dimensions";
 const DATA = "data";
 const BLOCK = "block";
-const PARAM = "parameters";
+const BATCH = "batch";
+const NUM_DIM = "dim";
 const CURR = "current";
 
 /*
@@ -23,7 +24,8 @@ export default class DatabaseManager {
         DatabaseManager.storePair(DIM, {"0": dimensions});
         DatabaseManager.storePair(DATA, {"0":data});
         DatabaseManager.storePair(BLOCK, {"0":0})
-        DatabaseManager.storePair(PARAM, {"batch":40, "dim":5})
+        DatabaseManager.storePair(BATCH, 40);
+        DatabaseManager.storePair(NUM_DIM, 5);
     }
 
     // store the data into the local storage
@@ -31,15 +33,27 @@ export default class DatabaseManager {
         localStorage.setItem(key, JSON.stringify(data));
     }
 
-    // // set the current block id
-    // static setCurrentBlock(id) {
-    //     localStorage.setItem(CURR, id);
-    // }
-    
-    // // get the current block id
-    // static getCurrentBlock() {
-    //     return localStorage.getItem(CURR);
-    // }
+    // get the batch size
+    static getBatchSize() {
+        const param = JSON.parse(localStorage.getItem(BATCH));
+        return param;
+    }
+
+    // get the dimension size
+    static getDimensionSize() {
+        const param = JSON.parse(localStorage.getItem(NUM_DIM));
+        return param;
+    }
+
+    // set the batch size
+    static setBatchSize(size) {
+        DatabaseManager.storePair(BATCH, size);
+    }
+
+    // set the dimension size
+    static setDimensionSize(size) {
+        DatabaseManager.storePair(NUM_DIM, size);
+    }
 
     /* ************************************ BLOCK ************************************ */
     static postBlock(id, prompt, content, responseId) {
