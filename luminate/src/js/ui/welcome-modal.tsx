@@ -1,25 +1,26 @@
 // a modal that shows up on the first visit to the site
 // and prompts the user to enter their open ai api key
-
-import React, { useState } from 'react';
-import { Modal, Box, Typography, TextField, Button, Tooltip } from '@mui/material';
-import {Settings} from '@mui/icons-material';
 import './welcome-modal.scss';
-import DatabaseManager from '../db/database-manager';
+import React, { useState } from 'react';
+import { Modal, Box, TextField} from '@mui/material';
+import { saveEnvVal } from '../util/util';
 
 export function WelcomeModal() {
   const [open, setOpen] = useState(true);
 
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleClose = (event, reason) => {
+    if (reason !== 'backdropClick') {
+      setOpen(false);
+    }
+  }
 
-  const handleSubmit = (event) => {
+  const handleSubmit = (event,reason) => {
     event.preventDefault();
     const data = new FormData(event.target);
     const apiToken = data.get('openai-api');
     // save data into env variables
     saveEnvVal('VITE_OPENAI_API_KEY', apiToken as string);
-    handleClose();
+    handleClose(event,reason);
   };
 
   return (
@@ -37,7 +38,7 @@ export function WelcomeModal() {
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: 400,
+            width: 600,
             bgcolor: 'background.paper',
             boxShadow: 24,
             p: 4,
@@ -46,7 +47,8 @@ export function WelcomeModal() {
         >
           <h4>Welcome to Luminate 👋</h4>
           <p>
-            Luminate is a research tool for brainstorming and writing.
+            Luminate is a research prototype for human-AI text-based co-creation powered by GPT 3.5.
+            To start off, please enter your OpenAI API Key in the text field below.
           </p>
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
             <TextField
@@ -60,12 +62,19 @@ export function WelcomeModal() {
               autoFocus
             />
             <p className='note'>
+              You can find your Secret OpenAI API key in your <a href="https://platform.openai.com/account/api-keys" target="_blank">User Settings</a>
+            </p>
+            <p className='note'>
+              Each prompt will results in around 82 requests and may cost upto $0.8 USD.
+              You can find detailed information about the cost in  <a href="https://openai.com/pricing" target="_blank">Pricing</a>
+            </p>
+            <p className='note'>
               Luminate will not save your OpenAI API key neither in a cookie, localStorage, nor server. 
               You will need to enter it every time you open the app.
               You may also download the source code and run it locally.
             </p>
             <button type="submit" className='submit-button'>
-              Save
+              Play Luminate ⚗️
             </button>
           </Box>
         </Box>

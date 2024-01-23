@@ -17,8 +17,14 @@ export function ApiInputModal() {
     event.preventDefault();
     const data = new FormData(event.target);
     const apiToken = data.get('openai-api');
+    console.log('API Key:', apiToken);
+
+    const batchSize = data.get('batch-size');
+    const dimensionSize = data.get('num-dims');
     // save data into env variables
     saveEnvVal('VITE_OPENAI_API_KEY', apiToken as string);
+    DatabaseManager.setBatchSize(batchSize as string);
+    DatabaseManager.setDimensionSize(dimensionSize as string);
     handleClose();
   };
 
@@ -59,7 +65,7 @@ export function ApiInputModal() {
               id="openai-api"
               label="Enter your OpenAPI Key"
               name="openai-api"
-              defaultValue={import.meta.env.VITE_OPENAI_API_KEY}
+              defaultValue={import.meta.env.VITE_OPENAI_API_KEY as string}
               autoFocus
             />
             <TextField

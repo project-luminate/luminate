@@ -13,7 +13,7 @@ import useDimStore from '../../../store/use-dim-store.jsx';
 import { Label, dimensionsToAxes, nodeColor } from './scatter-space.helper.js';
 import { useStore } from 'zustand';
 import * as bootstrap from 'bootstrap';
-import { growSpace } from '../../../util/space-generation-util.jsx';
+import { growSpace } from '../../../util/space-generation-util';
 import { allDimensionFiltersOff } from '../variation-block/variation-block.helper.js';
 import { SwitchAccessShortcutAdd } from '@mui/icons-material';
 import { CircularProgress } from '@mui/material';

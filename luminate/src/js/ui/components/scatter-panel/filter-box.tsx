@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import Chip from '@mui/material/Chip';
 import Slider from '@mui/material/Slider';
-import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
@@ -11,7 +9,6 @@ import ValueChipArray from './value-chip-array/value-chip-array';
 // import ValueChipArray from './value-chip-array';
 
 export const FilterBox = ({d}) => {
-    const {labels, dimensions, addLabel, setDimensions, toggleCompareMode, isCompareMode, showMyFav, toggleMyFav} = useDimStore();
     const [value, setValue] = useState(d.values)
     
     const handleChange = (event, newValue) => {

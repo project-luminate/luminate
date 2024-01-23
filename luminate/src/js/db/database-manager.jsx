@@ -1,7 +1,5 @@
 import dimensions from '../../data/dimensions-new.json';
 import data from '../../data/responses.json';
-import fs from 'fs';
-import path from 'path';
 
 const DIM = "dimensions";
 const DATA = "data";
@@ -200,5 +198,6 @@ export default class DatabaseManager {
             data[id][k] = v;
         });
         DatabaseManager.storePair(DATA, data);
+        console.log("data after add batch", data);
     }
 }

@@ -202,10 +202,14 @@
   margin-top: 5px; 
 }
 
-.red-shadow {
+.outlined {
   outline: 3px solid #444444aa;
   outline-offset: 3px;
   // box-shadow: 0 0 10px rgb(74, 74, 74); 
+}
+
+.red-shadow {
+  box-shadow: 0 0 10px rgb(255, 0, 0); 
 }
 
 .low-opacity {

@@ -35,18 +35,7 @@ export default function Editor() {
       initEditor();
       // store the editor instance in the store
       ejInstance.current = getEditorInstance();
-      console.log("editor instance", ejInstance.current);
       useEditorStore.setState({api: ejInstance.current});
-      console.log("editor instance", useEditorStore.getState().api);
-
-
-      // document.addEventListener('selectionchange', handleSelectionChange);
-      // document.addEventListener('mouseup', handleSelectionChange);
-      // return () => {
-      //   // Cleanup
-      //   document.removeEventListener('selectionchange', handleSelectionChange);
-      //   document.removeEventListener('mouseup', handleSelectionChange);
-      // };
     }
 
     return () => {

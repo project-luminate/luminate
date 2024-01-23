@@ -3,26 +3,21 @@ import { nominalDimensionDef, ordinalDimensionDef } from "./prompts";
 
 const MAX_TOKEN_BIG = 1000;
 const MAX_TOKEN_SMALL = 256;
-const MODEL = 'text-davinci-003';
+const MODEL = "gpt-3.5-turbo-instruct";
 const TEMPERATURE = 0.7;
 const TOP_P = 1;
 
-async function generateDimensions(query, context){
+export async function generateDimensions(query, context){
   // generate dimensions based on the query and context
   const start = new Date().getTime();
   let fail = 0;
   let total = 0;
   const {api} = useEditorStore.getState();
   const ejData = await api.save();
-  console.log("ejData", ejData);
+  // console.log("ejData", ejData);
   // get the last block
   let prevContext = ""
-  // if (ejData.blocks.length === 0 ){
-  //     prevContext = "";
-  // } else {
-  //     prevContext = ejData.blocks[ejData.blocks.length - 1].data.text;
-  // }
-  console.log("ejData context", prevContext);
+  // console.log("ejData context", prevContext);
   let background = "";
   if (prevContext !== "" && context !== ""){
     background =`(${prevContext}) AND ( ${context})`;
@@ -84,7 +79,7 @@ async function generateDimensions(query, context){
   return { "categorical": {},  "ordinal": {} };
 }
 
-async function generateCategoricalDimensions(prompt, catNum, valNum, temperature){
+export async function generateCategoricalDimensions(prompt, catNum, valNum, temperature=TEMPERATURE){
     const message = nominalDimensionDef + `list ${catNum} nominal dimensions and associated ${valNum} possible values
      on which we can categorize and assess the content for the prompt: ${prompt}
     ####
@@ -103,7 +98,7 @@ async function generateCategoricalDimensions(prompt, catNum, valNum, temperature
           prompt: `${message}`,
           temperature: TEMPERATURE,
           max_tokens: MAX_TOKEN_BIG,
-          top_p: 1,
+          top_p: TOP_P,
           frequency_penalty: 0.75,
           presence_penalty: 0,
           stream: false
@@ -114,13 +109,14 @@ async function generateCategoricalDimensions(prompt, catNum, valNum, temperature
     console.log("categorical dimensions", JSON.parse(value)["choices"][0]["text"]);
     return JSON.parse(value)["choices"][0]["text"];
 }
-async function generateOrdinalDimensions(prompt, catNum){
+
+export async function generateOrdinalDimensions(prompt, catNum){
   const message = `list ${catNum} ordinal dimensions
    on which we can assess the outcome for the prompt: ${prompt} to what extent represents the dimensions
   ####
   answer in the following JSON format: 
   {
-      "<dimension name>": ["least", "less", "neutral", "more", "most"]
+      "<dimension name>": ["<lowest degree>", "least", "moderate", "most", "<highest degree>"]
   }`
 
   const response = await fetch('https://api.openai.com/v1/completions', {
@@ -134,7 +130,7 @@ async function generateOrdinalDimensions(prompt, catNum){
         prompt: `${message}`,
         temperature: TEMPERATURE,
         max_tokens: MAX_TOKEN_BIG,
-        top_p: 1,
+        top_p: TOP_P,
         frequency_penalty: 0.75,
         presence_penalty: 0,
         stream: false
@@ -146,7 +142,7 @@ async function generateOrdinalDimensions(prompt, catNum){
   return JSON.parse(value)["choices"][0]["text"];
 }
 
-async function generateNumericalDimensions(prompt, numNum){
+export async function generateNumericalDimensions(prompt, numNum){
     const message = `list ${numNum}  numerical dimensions on which we can assess
      the story for the prompt: ${prompt} 
     ####
@@ -168,7 +164,7 @@ async function generateNumericalDimensions(prompt, numNum){
         prompt: `${message}`,
         temperature: 0.7,
         max_tokens: MAX_TOKEN_SMALL,
-        top_p: 1,
+        top_p: TOP_P,
         frequency_penalty: 0.75,
         presence_penalty: 0,
       }),
@@ -181,7 +177,7 @@ async function generateNumericalDimensions(prompt, numNum){
 
 
 
-async function highlightTextBasedOnDimension(dimension, val, text){
+export async function highlightTextBasedOnDimension(dimension, val, text){
   let result = await getRelatedTextBasedOnDimension(dimension, val, text);
   for (let i = 0; i < 5; i++){
       if (validateFormatForHighlight(result)) {
@@ -195,7 +191,7 @@ async function highlightTextBasedOnDimension(dimension, val, text){
   return null;
 }
 
-async function getRelatedTextBasedOnDimension(dimension, val, text){
+export async function getRelatedTextBasedOnDimension(dimension, val, text){
     // given a dimension, highlight the text that is related to the dimension
     // return a html string with the highlighted text in the span tag
     const message = `list 3 excerpts of the text that reflect the dimension: ${dimension} ${val}  
@@ -219,11 +215,11 @@ async function getRelatedTextBasedOnDimension(dimension, val, text){
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'text-davinci-003',
+        model: MODEL,
         prompt: `${message}`,
         temperature: 0,
         max_tokens: 256,
-        top_p: 1,
+        top_p: TOP_P,
         frequency_penalty: 0.75,
         presence_penalty: 0,
       }),
@@ -235,7 +231,7 @@ async function getRelatedTextBasedOnDimension(dimension, val, text){
 
 
 
-async function getKeyTextBasedOnDimension(kvPairs, text){
+export async function getKeyTextBasedOnDimension(kvPairs, text){
   // given several dimensions, return 3 sentences that reflect the dimension values
 
   // kvPairs is a list of key value pairs, break it into a string
@@ -265,7 +261,7 @@ async function getKeyTextBasedOnDimension(kvPairs, text){
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'text-davinci-003',
+      model: MODEL,
       prompt: `${message}`,
       temperature: 0,
       max_tokens: 256,
@@ -282,7 +278,7 @@ async function getKeyTextBasedOnDimension(kvPairs, text){
   return result;
 }
 
-function validateFormatForDimensions(response, isNumerical){
+export function validateFormatForDimensions(response: string, isNumerical: boolean){
   // validate the format of the response
   // return true if the response is in the correct format
   // return false if the response is not in the correct format
@@ -306,7 +302,7 @@ function validateFormatForDimensions(response, isNumerical){
   }
 }
 
-export function validateFormatForHighlight(response){
+export function validateFormatForHighlight(response: string){
   // validate the format of the response
   // return true if the response is in the correct format
   // return false if the response is not in the correct format
@@ -329,19 +325,18 @@ export function validateFormatForHighlight(response){
   }
 }
 
-async function generateDimensionBasedOnExample(examples, requirements){
-
-
+export async function reviseResponseWithNewDimensionLabel(dimensionName, labels, response){
+  // revise the response with the new dimension label
+  // return the revised response
+  let result = await getRelatedTextBasedOnDimension(dimensionName, labels[0], response);
+  for (let i = 0; i < 5; i++){
+      if (validateFormatForHighlight(result)) {
+          console.log("all related", result)
+          return result;
+      };
+      result = await getRelatedTextBasedOnDimension(dimensionName, labels[0], response);
+  }
+  // did not get a valid response after 5 tries
+  console.log("failed to get a valid response")
+  return null;
 }
-
-export {
-  highlightTextBasedOnDimension, 
-  getKeyTextBasedOnDimension,
-  // Dimension related functions
-  generateDimensions, 
-  generateCategoricalDimensions, 
-  // generateNumericalDimensions, 
-  generateDimensionBasedOnExample,
-  // Validation related functions
-  validateFormatForDimensions, 
-};

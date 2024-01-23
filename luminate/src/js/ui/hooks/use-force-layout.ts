@@ -41,11 +41,6 @@ export const useForceLayout = (
       // .alphaDecay(0.04)
       .restart();
 
-    console.log('simulation ready')
-    // setTimeout(() => {
-    //   simulation.restart();
-    // }, 2000);
-
     if (Object.values(blockMap).length === 0) return;
     simulation.on('tick', () => {
       const updatedBlockMap: {[ID: string]: any} = blockMap;

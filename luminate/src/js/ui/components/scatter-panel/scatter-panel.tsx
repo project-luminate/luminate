@@ -1,29 +1,28 @@
 import React, { useEffect, useState, useRef } from "react"
-import { CSSTransition } from 'react-transition-group';
 import * as bootstrap from 'bootstrap';
 
 
 import './scatter-panel.scss';
 import { styled, alpha } from "@mui/material/styles";
-import SearchIcon from '@mui/icons-material/Search';
-import InputBase from '@mui/material/InputBase';
-import { Autocomplete,NativeSelect,  Box, Button, ButtonBase, Checkbox, FormControl, IconButton, InputLabel, ListItemText, MenuItem, OutlinedInput, Select, TextField, Fab} from '@mui/material';
-import { FilterBox } from "./filter-box";
+import { Button, Checkbox, FormControl, IconButton, ListItemText, MenuItem, Select, Fab, CircularProgress, InputBase} from '@mui/material';
+import {Clear, KeyboardArrowLeft,KeyboardArrowRight, Bookmark, ChevronLeft, ChevronRight, Search} from '@mui/icons-material';
 
 import useDimStore from '../../../store/use-dim-store';
 import useCurrStore from "../../../store/use-curr-store";
 import DatabaseManager from "../../../db/database-manager";
 import { Dimension } from "../scatter-space/scatter-space.helper";
 
+import {addNewDimension} from '../../../util/space-generation-util';
+
 import Fuse from 'fuse.js';
 
-import {Clear, KeyboardArrowLeft,KeyboardArrowRight} from '@mui/icons-material';
-import { Bookmark, CenterFocusStrong, ChevronLeft, ChevronRight, FormatTextdirectionLToR, Menu, Notes, Tune } from "@mui/icons-material";
 
 export const ScatterPanel = ({updateNodePositions, camera, setCamera}) => {
   const {currBlockId, setCurrBlockId, nodeMap, setNodeMap, dimensionMap, setDimensionMap, selectedLabelIds, setSelectedLabelIds, keywordNodes, setKeywordNodes, addKeywordNode, removeKeywordNode,  addFilteredLabel, removeFilteredLabel} = useCurrStore();
   const {labels, dimensions, addLabel, setDimensions, myFav, toggleMyFav} = useDimStore();
   const [query, setQuery] = useState('');
+  const [addDimensionInput, setAddDimensionInput] = useState('');
+  const [loadingGrow, setLoadingGrow] = useState(false);
   const [showFullRow, setShowFullRow] = useState(false);
   const scatterPanelRef = useRef(null); 
 
@@ -54,11 +53,6 @@ export const ScatterPanel = ({updateNodePositions, camera, setCamera}) => {
 
   const handleInputChange = (e) => {
     setQuery(e.target.value);
-    // if (query === '') {
-    //   console.log('query is empty');
-    //   setKeywordNodes(new Set());
-    //   return;
-    // }
   }
 
 
@@ -124,8 +118,6 @@ export const ScatterPanel = ({updateNodePositions, camera, setCamera}) => {
       return
     }
     for (let i = 0; i < result.length; i++) {
-      // newMap[(result[i]?.item as any[])['ID'] ?? 0] = result[i].item;
-      // adding the result id to the keywordNodes
       addKeywordNode((result[i].item as any[])['ID'] ?? 0);
     }
     // setNodeMap(newMap);
@@ -204,20 +196,6 @@ export const ScatterPanel = ({updateNodePositions, camera, setCamera}) => {
             }}/>
           }
         </IconButton> */}
-        {/* {
-          displayState('none') === 'none' &&
-          <IconButton type='button' aria-label='center' onClick={() => {
-            camera = {x: 0, y: 0, z: 1}
-            setCamera({x: 0, y: 0, z: 1})
-          }}
-          style={{
-            // background: displayState('none') === 'none' ? '#ffffff99' : '#1b1b1b99',
-          }}>
-            {
-              <CenterFocusStrong style={{color: '#aaa'}}/>
-            }
-          </IconButton>
-        } */}
         {
           <IconButton type='button' aria-label='hide-bar' onClick={() => {
             displayState('none') === 'none' ? updateToggleFilterState('none' ) :updateToggleFilterState('editor')
@@ -241,7 +219,7 @@ export const ScatterPanel = ({updateNodePositions, camera, setCamera}) => {
           alignItems: 'center',
           justifyContent: 'center',}}
         onSubmit={submitListener}>
-        <Search>
+        <KeywordSearch>
           <StyledInputBase
             placeholder="Search for nodes using keywords"
             inputProps={{ 'aria-label': 'search' }}
@@ -249,57 +227,15 @@ export const ScatterPanel = ({updateNodePositions, camera, setCamera}) => {
             value={query} 
           />
           <SearchIconWrapper>
-            <SearchIcon style={{color: '#aaa'}} />
+            <Search style={{color: '#aaa'}} />
           </SearchIconWrapper>
-        </Search>
+        </KeywordSearch>
       </form>
-
-      {/* Axis */}
-      {/* <Autocomplete
-        className="dimension-menu"
-        style={{
-          width: 'fit-content',
-          minWidth: '300px',
-          height: '44px',
-          margin: '0 12px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: '#ffffff99',
-          backdropFilter: 'blur(6px)',
-          borderRadius: '12px',
-          border: '2px solid #eee',
-          outline: 'none',
-          boxShadow: '0 0 35px 4px rgba(0,0,0,0.1)',
-        }}
-        size="small"
-        filterSelectedOptions
-        multiple
-        options={Object.values(dimensionMap)}
-        getOptionLabel={(option:any) => option.name}
-        value={dimensions}
-        renderInput={(params) => (
-          <TextField
-            className="input-item"
-            {...params}
-            variant='outlined'
-            // label="Multiple values"
-            placeholder={dimensions.length < 2 ? "Select Dimensions" : ''}
-          />
-        )}
-        onChange={(event, values) => {
-          if (values.length <= 2) {
-            setSelectedLabelIds(-2, -2)
-            setDimensions(values)
-          }
-        }}
-      />  */}
 
       {/* Toggle */}
       <div style={{height: '44px'}}>
         <Button className="panel-item" style={{
           height: '44px',
-          // padding: '0 14px',
           background: myFav ? '#1b1b1b99' : '#ffffff99',
           backdropFilter: 'blur(6px)',
           borderRadius: '12px',
@@ -354,10 +290,7 @@ export const ScatterPanel = ({updateNodePositions, camera, setCamera}) => {
                   value={[`${dimension.name}`]}
                   onChange={(event) => {
                     // get all the selected values
-                    console.log("bame",dimension.name);
-
                     const {target: { value },} = event;
-                    console.log("vame",value);
                     // add the values to the dimension.filtered
                     // for (let i = 1; i < value.length; i++) {
                     //   if ((dimensionMap[dimension.name]?.filtered as string[])?.includes(value?.[i])) {
@@ -390,6 +323,42 @@ export const ScatterPanel = ({updateNodePositions, camera, setCamera}) => {
             ))
           }
         </div>
+        {/* add new dimension */}
+        {
+          dimensionMap && Object.values(dimensionMap).length >0 ?
+          <div className='add-dimension'>
+          {
+            loadingGrow ? 
+            <>
+              <CircularProgress style={{color: '#777'}} size={20} />
+              <div>Adding {addDimensionInput}...</div>
+            </>:
+            <form onSubmit={(e) => {
+              e.preventDefault()
+              if (loadingGrow || !addDimensionInput.trim()) return;
+              // setDimensionMap(dimensionMap);
+              setLoadingGrow(true);
+              console.log('currId', currBlockId);
+              const prompt = DatabaseManager.getBlock(currBlockId)?.prompt;
+              console.log('add new dimension', prompt);
+              console.log('add dimension input', addDimensionInput);
+              addNewDimension(prompt, addDimensionInput, dimensionMap, setDimensionMap, nodeMap, setNodeMap).then(data => {
+                setLoadingGrow(false);
+                setAddDimensionInput('');
+              })
+              }
+            }>
+              <input type='text' placeholder='Add new dimension' value={addDimensionInput} onChange={(e: any) => {
+                setAddDimensionInput(e.target.value)
+              }}></input>
+              <button>+</button>
+            </form>
+          }
+        </div> 
+        : <> </>
+        }
+        
+
         <div className="fab-container-right">
             <Fab size="small" aria-label="add" className="fab" 
               sx ={{
@@ -431,7 +400,7 @@ const customStyles = {
   border: 'none', // Remove the border
 };
 
-const Search = styled('div')(({ theme }) => ({
+const KeywordSearch = styled('div')(({ theme }) => ({
   position: 'relative',
   display: 'flex',
   borderRadius: theme.shape.borderRadius,

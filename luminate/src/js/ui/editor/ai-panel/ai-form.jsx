@@ -2,9 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Typography, InputBase, Paper,} from '@mui/material';
 
 import IconButton from '@mui/material/IconButton';
-import SendIcon from '@mui/icons-material/Send';
-import CloseIcon from '@mui/icons-material/Close';
-
+import {Send, Close} from '@mui/icons-material/';
 
 import * as GPTUtil from '../../../util/gpt-util';
 import * as SpaceUtil from '../../../util/space-generation-util';
@@ -26,7 +24,6 @@ export default function AiForm({responseHandler, selectedContent}) {
     const {response, setResponse, responseId, context} = useResponseStore(); // response is the response from the AI
     const [generationState, setGenerationState] = useState("dimension"); // generationState is the state of the generation, "dimension" or "response"
     const [firstRendered, setFirstRendered] = useState(true);   // firstRendered is a boolean to check if the response is rendered, true when first rendered
-    // let canRemove = true;         // canRemove is a boolean to check if the panel can be removed, true when the panel can be removed                              
     const api = useEditorStore(state => state.api);
     const {selectedResponse, setSelectedResponse} = useSelectedStore();
 
@@ -53,7 +50,7 @@ export default function AiForm({responseHandler, selectedContent}) {
         // Append the toast to the toast container
         const toastContainer = document.getElementById('toast-container');
         if (toastContainer) {
-        toastContainer.appendChild(toast);
+            toastContainer.appendChild(toast);
         }
     }
     
@@ -80,16 +77,6 @@ export default function AiForm({responseHandler, selectedContent}) {
                 toast.show();
 
             });
-
-        // Object.entries(res["numerical"]).forEach(([d, v]) => {
-        //     const data ={
-        //     "name": d,
-        //     "values": v,
-        //     "type": "numerical"
-        //     }
-        //     DatabaseManager.postDimension(currBlockId, d, data);
-        //     // dpInstance.addDimensionButton(data);
-        // });
 
             Object.entries(res["ordinal"]).forEach(([d, v]) => {
                 const data ={
@@ -280,25 +267,6 @@ export default function AiForm({responseHandler, selectedContent}) {
         }
     }, [context]);
 
-    // when the component mounts, add an event listener to remove the panel when user clicks outside
-    // if the user never submits the query, then the panel can be removed by clicking outside
-    // if the user submits the query, then the panel can only be removed by clicking the close button
-    // useEffect(() => {
-    //     function handleClickOutside(event) {
-    //       if (aiPanelRef.current && !aiPanelRef.current.contains(event.target) && canRemove) {
-    //         // Click is outside the element, so hide it
-    //         setQuery('');
-    //         aiPanelRef.current.remove();
-    //       }
-    //     }
-    //     // Attach the event listener when the component mounts
-    //     document.addEventListener('mousedown', handleClickOutside);
-    //     // Clean up the event listener when the component unmounts
-    //     return () => {
-    //       document.removeEventListener('mousedown', handleClickOutside);
-    //     };
-    //   }, []);
-
       const handleResponseFromAiForm = (response) => {
         // Check if the Editor.js instance is available
         console.log("entered handler", response);
@@ -314,9 +282,6 @@ export default function AiForm({responseHandler, selectedContent}) {
                 //   aiPanelRef: response.aiPanelRef
                 }
             };
-            // set block style that the background color is light blue
-            // console.log("blockId is ", this.blockId)
-            // this.blockIndex = api.blocks.getCurrentBlockIndex()
             console.log("b", api.blocks.getBlocksCount())
             api.blocks.insert(blockToAdd.type, blockToAdd.data, null, api.blocks.getBlocksCount());
     
@@ -339,7 +304,7 @@ export default function AiForm({responseHandler, selectedContent}) {
                     useResponseStore.setState({context: ''});
                 }}
             >
-                <CloseIcon/>
+                <Close/>
             </IconButton>
         </div>
         <Paper
@@ -406,81 +371,10 @@ export default function AiForm({responseHandler, selectedContent}) {
             }   
         />}
         <IconButton type="submit" sx={{ p: '10px' }} aria-label="submit" disabled={isSubmitting}>
-            <SendIcon/>
+            <Send/>
         </IconButton>
-        {/* <Divider 
-            orientation="vertical" 
-            flexItem 
-            variant='middle'
-            sx={{
-                marginRight: '5px',
-                marginLeft: '5px',
-                backgroundColor: '#000'
-            }}
-        />
-        <IconButton type="button" sx={{ p: '10px' }} aria-label="discard" onClick={onDestroy}>
-            <CloseIcon/>
-        </IconButton> */}
         </Paper>
-        {/* {
-            (firstRendered)
-            ? null 
-            :(
-            <Paper
-            sx={{ p: '2px 4px', display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '20px', padding: "10px"}}>     
-                {(!responseTitle) ? 
-                <Skeleton animation="wave" width="100%" height="30px" style={{marginTop: '5px'}}/> 
-                :   (<Typography variant="body1" component="div" sx = {{ padding:'10px'}} >
-                    {responseTitle}
-                    </Typography>
-                )}
-                {(!responseDimensions) ? 
-                <Skeleton animation="wave" width="100%" height="30px" style={{marginTop: '5px'}}/> 
-                :   (<Typography variant="body1" component="div" sx = {{ padding:'10px'}} >
-                        {responseDimensions}
-                    </Typography>
-                )}
-                {(!response) ? 
-                (<Skeleton animation="wave" variant="rectangular" width="100%" height="160px" style={{marginTop: '5px'}} /> )
-                :   (
-                    <React.Fragment>
-                        <Typography variant="body1" component="div" sx = {{ padding:'10px'}} >
-                        {response}
-                        </Typography>
-                    </React.Fragment>)}
-            </Paper>
-            )
-        } */}
-        {/* {
-            showButtons ?
-            <ButtonGroup 
-            sx={{display: 'flex', justifyContent: 'flex-end', marginTop: '10px'}}
-            >
-                <Tooltip title="Discard">
-                    <IconButton type="button" sx={{ p: '10px' ,backgroundColor: '#f8f7fa', marginRight:'5px' }} aria-label="discard" onClick={onDestroy}>
-                        <DeleteForeverIcon/>
-                    </IconButton>
-                </Tooltip>
-                <Tooltip title="Accept">
-                    <IconButton type="button" sx={{ p: '10px ' ,backgroundColor: '#f8f7fa' , marginRight:'5px'  }} aria-label="accept" onClick={onAccept}>
-                        <TaskIcon/>
-                    </IconButton>
-                </Tooltip>
-                <Tooltip title="Regenerate">
-                    <IconButton type="button" sx={{ p: '10px',backgroundColor: '#f8f7fa' , marginRight:'5px'  }} aria-label="accept" onClick={onRegenerate}>
-                        <AutorenewIcon/>
-                    </IconButton>
-                </Tooltip>
-                <Tooltip title="Explore the space">
-                    <IconButton type="button" sx={{ p: '10px' ,backgroundColor: '#f8f7fa'}} aria-label="explore" onClick={onExplore}>
-                        <TravelExploreIcon/>
-                    </IconButton>
-                </Tooltip>
-            </ButtonGroup>
-            : null
-        }   */}
         </>
-        // </div>
     );
 }
 
@@ -571,17 +465,3 @@ export default function AiForm({responseHandler, selectedContent}) {
 //     return res;
 // }
 
-// async function diversifyResponses(currBlockId, query, dims) {
-//     const startTime = Date.now();
-//     // generate the space
-//     const num = 1; //batch size
-//     const onFinished = await SpaceUtil.buildSpace(currBlockId, dims, num, query, "");
-//     // make a toast to indicate that the space is generated
-//     var toast = new bootstrap.Toast(document.getElementById('fav-toast'));
-//     document.getElementById('toast-text').textContent = "Generated a space with " + num + " responses";
-//     toast.show();
-
-//     const endTime = Date.now();
-//     console.log("Time to complete the space generation of " + num + " responses: " + (endTime - startTime) + "ms");
-//     console.log("Finished generating space", "failed", onFinished["fail_count"], "total", onFinished["total_count"]);
-// }

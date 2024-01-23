@@ -61,6 +61,22 @@ const useCurrStore = create((set) => ({
         return state;
     }),
 
+    // the newly added nodes
+    newNodes: new Set(),
+    setNewNodes: (ids) => set((state) => {
+        state.newNodes = ids;
+        return state;
+    }),
+    addNewNode: (id) => set((state) => {
+        state.newNodes.add(id);
+        return state;
+    }),
+    removeNewNode: (id) => set((state) => {
+        if (state.newNodes.has(id))
+        state.newNodes.delete(id);
+        return state;
+    }),
+
     // editor instance
     editorInstance: null,
     setEditorInstance: (editor) => set({ editorInstance: editor }),

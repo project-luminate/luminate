@@ -2,15 +2,16 @@ import useCurrStore from "../store/use-curr-store";
 import useResponseStore from "../store/use-response-store";
 import useEditorStore from "../store/use-editor-store";
 import DatabaseManager from "../db/database-manager";
-import * as bootstrap from 'bootstrap';
 import useSelectedStore from "../store/use-selected-store";
+import * as bootstrap from 'bootstrap';
 import { uuid } from "./util";
-import { generateCategoricalDimensions } from "./gpt-util";
+import ToastContainer from "../ui/toasts";
+import { generateCategoricalDimensions, validateFormatForDimensions } from "./gpt-util";
 
 const DELIMITER = "####";
 const MAX_TOKEN_BIG = 3500;
 const MAX_TOKEN_SMALL = 1000;
-const MODEL = "text-davinci-003";
+const MODEL = "gpt-3.5-turbo-instruct";
 const TEMPERATURE = 0.7;
 const TOP_P = 1;
 
@@ -18,12 +19,22 @@ let fail_count = 0;
 let total_count = 0;
 let firstId = '';
 
-// const configuration = new Configuration({
-//     apiKey:  `${import.meta.env.VITE_OPENAI_API_KEY}`,
-//   });
-// const openai = new OpenAIApi(configuration);
+// interface ResponseData {
+//     [key: string]: {
+//         Prompt: string;
+//         Context: string;
+//         Result: string;
+//         Summary: string;
+//         Keywords: string[];
+//         Structure: string; // Adjust the type according to actual data structure
+//         Title: string;
+//         IsMyFav: boolean;
+//     };
+// }
 
 async function editorBackgroundPrompt() {
+    let context=""; // FIXME: unknown context
+    const {api} = useEditorStore.getState();
     const ejData = await api.save();
     // get the last block
     let prevContext;
@@ -75,13 +86,14 @@ export async function buildSpace(currBlockId, dimensions, numResponses, prompt, 
         const response = await generateResponse(message);
         console.log("check if there's a new line character", response);
         // response = response.replace(/\n/g, '<br>');
-        if (id ===  useResponseStore.getState().responseId){
+        if (id === useResponseStore.getState().responseId){
             // set the first response as the default response
             useResponseStore.getState().setResponse(response);
             // print responseId
             console.log("print in side the space", useResponseStore.getState().responseId)
         }
         // store the response in the data
+        // let data: ResponseData = {};
         data[id]["Prompt"] = message;
         data[id]["Context"] = context;
         data[id]["Result"] = response;
@@ -138,6 +150,7 @@ export async function growSpace(currBlockId, dimensionMap, labels, numResponses,
         // Call the generateResponse function to generate a response for each requirement
         const response = await generateResponse(message);
         // store the response in the data
+        // let data: any;
         data[id]["Prompt"] = message;
         data[id]["Result"] = response;
         const summary = await abstraction(response);
@@ -150,8 +163,6 @@ export async function growSpace(currBlockId, dimensionMap, labels, numResponses,
     await Promise.all(responsePromises);
     const endTime = Date.now();
     console.log("Time to generate " + numResponses + " responses: " + (endTime - startTime) + "ms");
-    console.log(data);
-
     setNodeMap({
         ...nodeMap,
         ...data,
@@ -178,6 +189,7 @@ export async function addLabelToSpace(dimensionMap, newLabel, numResponses, prom
             // Call the generateResponse function to generate a response for each requirement
             const response = await generateResponse(message);
             // store the response in the data
+            // let data: ResponseData = {};
             data[id]["Prompt"] = message;
             data[id]["Result"] = response;
             const summary = await abstraction(response);
@@ -212,7 +224,8 @@ export async function addSimilarNodesToSpace(node, nodeMap, setNodeMap){
 
     // generate a response for each requirement
     const startTime = Date.now();
-    const data = {};
+    // const data = {};
+    // let data: ResponseData = {};
     const responsePromises = [0,1,2,3,4].map(async (i) => {
         // parse req to get id and requirements
         const id = uuid();
@@ -233,6 +246,7 @@ export async function addSimilarNodesToSpace(node, nodeMap, setNodeMap){
         data[id]["Structure"] = summary["Structure"];
         data[id]["Title"] = summary["Title"];
         data[id]["IsMyFav"] = false;
+        data[id]["IsNew"] = true; // when generting dots via see more
     });
     await Promise.all(responsePromises);
     const endTime = Date.now();
@@ -262,18 +276,25 @@ async function generateResponse(message){
             prompt: `${message}`,
             temperature: 0,
             max_tokens: MAX_TOKEN_BIG,
-            top_p: 1,
+            top_p: TOP_P,
             frequency_penalty: 0.75,
             presence_penalty: 0,
             stream: false
             }),
         });
         const reader = response.body?.pipeThrough(new TextDecoderStream()).getReader();
+        if (!reader) {
+            throw new Error('No reader found');
+        }
         const {value, done} = await reader.read();
         // console.log("value", value)
         // console.log(JSON.parse(value)["choices"][0]["text"]);
         total_count += 1; // increment total count
-        return JSON.parse(value)["choices"][0]["text"];
+        if (value){
+            return JSON.parse(value)["choices"][0]["text"];
+        } else {
+            throw new Error('No value found');
+        }
         /* 'gpt-3.5-turbo' / 'gpt-4' */
         // const response = await fetch('https://api.openai.com/v1/chat/completions', {
         //     method: 'POST',
@@ -334,14 +355,6 @@ function genDimRequirements(dimensions, numResponses){
             req += d + ": " + randVal + "\n";
             datum["Dimension"]["ordinal"][d] = randVal;
         });
-        // Object.entries(dimensions["numerical"]).forEach(([d, v]) => {
-        //     // choose a random value from v
-        //     let randVal = Math.random() * (v[1] - v[0]) + v[0];
-        //     // make it to 2 decimal places
-        //     randVal = Math.round(randVal * 100) / 100;
-        //     req += d + ": " + randVal + "in the range [" + v[0] + ", " + v[1] + "]\n";
-        //     datum["Dimension"]["numerical"][d] = randVal;
-        // });
         dimReqs.push({"ID": datum["ID"], "Requirements": req});
         data[datum["ID"]] = datum;
     }
@@ -387,7 +400,7 @@ function genLabelDimRequirements(dimensionMap, label, numResponses){
     // return a list of requirements
     // **** IMPORTANT ****
     // the ID of the requirement is the (index + 1) of the requirement in the list
-    let dimReqs = [];
+    // let dimReqs: { ID: string; Requirements: string }[] = [];
     let data = {};
     // console.log("numResponse", numResponses);
     for (let i = 0; i < numResponses; i++){
@@ -411,72 +424,6 @@ function genLabelDimRequirements(dimensionMap, label, numResponses){
         data[datum["ID"]] = datum;
     }
     return {dimReqs, data};
-}
-
-/**
- * Given the current dimensions, generate a brand new dimension and its labels.
- * For each response, select a random value of the dimension.
- * Update that response to also include that dimension label.
- * abstraction() of that new response
- * 
- * 
- * Not doing this: Then, for each response, apply one of the dimension labels to the current response.
- * 
- */
-export async function addNewDimension(prompt, dimensionMap, setDimensionMap, nodeMap, setNodeMap) {
-    const existingDimensionsPrompt = `\nThese are the current existing dimensions and their values:
-    ${Object.values(dimensionMap).map(dim => `${dim.name}(${dim.type}): [${dim.values.join(', ')}]\n`)}
-`
-    const newDimensionPrompt = editorBackgroundPrompt() + "prompt: " + prompt + existingDimensionsPrompt + `
-    Generate a new dimension that is new and orthogonal to the existing ones above.
-    `;
-
-    // Generate a new categorical dimension, and validate with one cycle
-    let categoricalDimensions = await generateCategoricalDimensions(newDimensionPrompt, 1, 6);
-    let newDimension = null;
-    for (let i = 0; i < 5; i++){
-        if (validateFormatForDimensions(categoricalDims, false)) {
-            newDimension = JSON.parse(categoricalDims)[0];
-            break
-        };
-        categoricalDimensions = await generateCategoricalDimensions(newDimensionPrompt, 1, 6)
-    }
-
-    if (!newDimension) {
-        console.log('failed add new dimension. Please try again.');
-        return;
-    }
-
-    // Add dimension to dimension Map
-    dimensionMap[newDimension.name] = newDimension;
-    setDimensionMap(dimensionMap);
-
-    const reviseResponsePrompt = existingDimensionsPrompt + `\nThis is the newly added dimension: ${newDimension.name}, and these are the dimension values: [${newDimension.values.join(', ')}]
-    The current response below already contains values of the existing dimensions. Revise this response such that the most relevant value from the dimension ${newDimension.name} is added in the story.`;
-
-    // For every existing response, regenerate response and abstraction s.t. the new dimension is added.
-    // You must choose from the given values: [...]. Choose the best one from these.
-    const data = {};
-    const responsePromises = Object.entries(nodeMap).map(async ([id, node], i) => {
-        const wordLimit = "Limit the response to 100 words.\n\n"
-        const message = wordLimit + "Prompt: " + reviseResponsePrompt + "\n" + "Current response: " + node["Result"];
-        const response = await generateResponse(message);
-        const summary = await abstraction(response);
-        data[id] = {
-            ...node,
-            ID: id,
-            Result: response,
-            Summary: summary["Summary"],
-            Keywords: summary["Key Words"],
-            Structure: summary["Structure"],
-        }
-    })
-    await Promise.all(responsePromises);
-    setNodeMap({
-        ...data,
-    });
-    const {currBlockId} = useCurrStore.getState();
-    DatabaseManager.addBatchData(currBlockId, data);
 }
 
 export async function abstraction(text){
@@ -530,26 +477,34 @@ async function summarizeText(text){
         prompt: `${message}`,
         temperature: 0,
         max_tokens: 256,
-        top_p: 1,
+        top_p: TOP_P,
         frequency_penalty: 0.75,
         presence_penalty: 0,
       }),
     });
     const reader = response.body?.pipeThrough(new TextDecoderStream()).getReader();
+    if (!reader) {
+        throw new Error('No reader found');
+    }
     const {value, done} = await reader.read();
-    console.log("text summary",JSON.parse(value)["choices"][0]["text"]);
-    return JSON.parse(value)["choices"][0]["text"];
+    // console.log("text summary",JSON.parse(value)["choices"][0]["text"]);
+    if (value){
+        return JSON.parse(value)["choices"][0]["text"];
+    } else {
+        throw new Error('No value found');
+    }
   }
 
+/*  validate the format of the response
+    return true if the response is in the correct format
+    return false if the response is not in the correct format 
+*/
 function validateFormatForSummarization(response){
-    // validate the format of the response
-    // return true if the response is in the correct format
-    // return false if the response is not in the correct format
     try {
         // check if the response is in the JSON format
         // only care about the text in between the {}
         const result = JSON.parse(response);
-        console.log("result format",result);
+        // console.log("result format",result);
         //  check if there are any infinities or NaNs
         for (const [key, value] of Object.entries(result)) {
             if (key !== "Summary" && key !== "Structure" && key !== "Key Words" && key !== "Title"){
@@ -575,6 +530,144 @@ function validateFormatForSummarization(response){
     }
   }
 
+/**
+ * Given the current dimensions, generate a brand new dimension and its labels.
+ * For each response, select a random value of the dimension.
+ * Update that response to also include that dimension label.
+ * abstraction() of that new response
+ * 
+ * 
+ * Not doing this: Then, for each response, apply one of the dimension labels to the current response.
+ * 
+ */
+export async function addNewDimension(prompt, dimensionName, dimensionMap, setDimensionMap, nodeMap, setNodeMap) {
+    let newDimResponse = await createLabelsFromDimension(prompt, dimensionName);
+    console.log("newDimension", newDimResponse);
+    let newDimension = null;
+    for (let i = 0; i < 5; i++){
+        if (validateFormatForDimensions(newDimResponse, false)) {
+            newDimension = JSON.parse(newDimResponse);
+            break
+        };
+        newDimResponse = await createLabelsFromDimension(prompt, dimensionName)
+    }
+    // separate the dimension name and values
+    if (!newDimension) {
+        console.log('failed add new dimension. Please try again.');
+        var toast = new bootstrap.Toast(document.getElementById('error-toast'));
+        var msg = document.getElementById('errortoast-text');
+        if (msg) {
+            msg.textContent = "Failed add a new dimension. Please try again.";
+            toast.show();
+        }
+        return;
+    }
+    var toast = new bootstrap.Toast(document.getElementById('fav-toast'));
+    var msg = document.getElementById('toast-text');
+      if (msg) {
+        msg.textContent = "New dimension added.";
+        toast.show();
+    }
+
+
+    const name = Object.keys(newDimension)[0];
+    const values = Object.values(newDimension)[0];
+
+    // Add dimension to dimension Map
+    dimensionMap[name] = {
+        id: dimensionMap.length,
+        name: name,
+        type: "categorical",
+        values: values,
+        filtered: [],
+    }
+    setDimensionMap(dimensionMap);
+    console.log("dimensionMap", dimensionMap);
+    // update dimensiosn in the local storage
+    const newDimensionToStore = {
+        "name": name,
+        "type": "categorical",
+        "values": values,
+    }
+    const {currBlockId} = useCurrStore.getState();
+    DatabaseManager.postDimension(currBlockId, name, newDimensionToStore) 
+
+    // for each response, run reviseResponseWithNewDimensionLabel
+    const reviseResponsePrompt = `\nThis is the newly added dimension: ${dimensionName}, and these are the dimension values: [${values.join(', ')}]
+    The current response below already contains values of the existing dimensions. Revise this response such that the most relevant value from the dimension ${dimensionName} is added in the story.`;
+    const data = {};
+    const responsePromises = Object.entries(nodeMap).map(async ([id, node], i) => {
+        const wordLimit = "Limit the response to 150 words.\n\n"
+        const message = wordLimit + "Prompt: " + reviseResponsePrompt + "\n" + "Current response: " + node["Result"];
+        const response = await generateResponse(message);
+        const summary = await abstraction(response);
+        data[id] = {
+            ...node,
+            ID: id,
+            Result: response,
+            Summary: summary["Summary"],
+            Keywords: summary["Key Words"],
+            Structure: summary["Structure"],
+        }
+    })
+    await Promise.all(responsePromises);
+    setNodeMap({
+        ...data,
+    });
+
+    // show a toast to notify the user
+    DatabaseManager.addBatchData(currBlockId, data);
+    var toast = new bootstrap.Toast(document.getElementById('fav-toast'));
+    msg = document.getElementById('toast-text');
+      if (msg) {
+        msg.textContent = "Current responses updated.";
+        toast.show();
+    }
+
+}
+
+// /*
+//  * Create new labels for a given dimension
+//  */
+async function createLabelsFromDimension(prompt, dimensionName){
+    const message =  `Given a dimension name, return a list of labels for that dimension for the prompt ${prompt}
+    ####
+    Dimension name is: ${dimensionName}
+    ####
+    answer in the following JSON format: 
+    {
+        "${dimensionName}": ["<label 1>", "<label 2>", "<label 3>",...."<label 6>"]
+    }`;
+
+    const response = await fetch('https://api.openai.com/v1/completions', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: MODEL,
+          prompt: `${message}`,
+          temperature: TEMPERATURE,
+          max_tokens: MAX_TOKEN_BIG,
+          top_p: TOP_P,
+          frequency_penalty: 0.75,
+          presence_penalty: 0,
+          stream: false
+        }),
+      });
+    const reader = response.body?.pipeThrough(new TextDecoderStream()).getReader();
+    if (!reader) {
+        throw new Error('No reader found');
+    }
+    const {value, done} = await reader.read();
+    if (value){
+        console.log("value", JSON.parse(value)["choices"][0]["text"]);
+        return JSON.parse(value)["choices"][0]["text"];
+    } else {
+        throw new Error('No value found');
+    }
+}
 
 
 

@@ -1,14 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from "react"
 import './variation-block.scss';
-import CanvasUtil from '../../../util/canvas-util.js';
 import { DimensionLabel } from "../dimension-label/dimension-label";
-import detailInfoOffcanvas from "../../side-bar/detail-info-offcanvas-builder";
-import { Bookmark, Margin, MarginSharp, CheckCircleOutline, CheckCircle, AutoAwesome } from "@mui/icons-material";
+import { Bookmark, AutoAwesome } from "@mui/icons-material";
 import useCurrStore from "../../../store/use-curr-store";
 import useResponseStore from "../../../store/use-response-store";
 import useDimStore from "../../../store/use-dim-store";
 import DatabaseManager from "../../../db/database-manager";
-import bootstrap from "bootstrap";
 import useSelectedStore from "../../../store/use-selected-store";
 import { dimensionsToAxes } from "../scatter-space/scatter-space.helper";
 import { allDimensionFiltersOff, blockIsFilteredIn } from "./variation-block.helper";
@@ -20,22 +17,17 @@ import useEditorStore from "../../../store/use-editor-store";
 
 export const VariationBlock = ({ block, zoom, color, scaleIn }) => {
 
-  const {dimensionMap, selectedLabelIds, nodeMap, setNodeMap, currBlockId, wantedNodes, setWantedNodes, addWantedNode, removeWantedNode, keywordNodes } = useCurrStore();
-  const {dimensions} = useDimStore();
-  const axes = dimensionsToAxes(dimensions)
+  const {dimensionMap, selectedLabelIds,  nodeMap, setNodeMap, currBlockId, wantedNodes, keywordNodes } = useCurrStore();
   const {responseId, setResponseId} = useResponseStore();
-  const {selectedResponse, setSelectedResponse} = useSelectedStore();
-  const {api,editedMap, setEditedMap} = useEditorStore();
+  const {setSelectedResponse} = useSelectedStore();
+  const {dimensions} = useDimStore();
   const [loadingMore, setLoadingMore] = useState(false);
-  // const [isFav, setIsFav] = React.useState(DatabaseManager.checkFavorite(currBlockId,d['ID']));
-
-
+  const {api,editedMap} = useEditorStore();
+  const axes = dimensionsToAxes(dimensions)
   const {myFav} = useDimStore();
-
   const animationClass = scaleIn ? 'scale-in' : 'scale-out';
 
   // handler for opening detail sidebar
-  // sangho commented out inner code, to remove detail sidebar
   const onClickHandler = (block: any) => {
     // if the current block in the editedMap is true, add a new block; otherwise, simply set selected response and response id
     if (editedMap[currBlockId]) { // the block is edited
@@ -44,7 +36,7 @@ export const VariationBlock = ({ block, zoom, color, scaleIn }) => {
 
       let prompt = "";
       if (match && match[0]) {
-              // remove Prompt: and ####
+        // remove Prompt: and ####
         prompt = match[0].substring(8, match[0].length - 5);
       } else {
         prompt = "Prompt not found.";
@@ -62,10 +54,7 @@ export const VariationBlock = ({ block, zoom, color, scaleIn }) => {
         //   aiPanelRef: response.aiPanelRef
         }
       };
-      // set block style that the background color is light blue
-      // console.log("blockId is ", this.blockId)
-      // this.blockIndex = api.blocks.getCurrentBlockIndex()
-      console.log("block count", api.blocks.getBlocksCount())
+      // console.log("block count", api.blocks.getBlocksCount())
       api.blocks.insert(blockToAdd.type, blockToAdd.data, null, api.blocks.getBlocksCount());
       DatabaseManager.postBlock(currBlockId, prompt, block.Result, block.ID);
 
@@ -82,7 +71,6 @@ export const VariationBlock = ({ block, zoom, color, scaleIn }) => {
   };
 
   const isWantedNode = (nodeId) => {
-    
     if (keywordNodes.size === 0) {
       if (wantedNodes.size === 0) {
         // If there are no wanted nodes, everything is wanted
@@ -97,7 +85,7 @@ export const VariationBlock = ({ block, zoom, color, scaleIn }) => {
     }
   }
   
-  const isKeywordNode = (nodeId) => {
+  const isNewNode = (nodeId) => {
     if (keywordNodes.size === 0) {
       return false;
     }
@@ -105,8 +93,7 @@ export const VariationBlock = ({ block, zoom, color, scaleIn }) => {
   }
 
   const onBookmarkHandler = (block) => {
-    // deactive current onclick listern
-
+    // deactive current onclick listener
     block.IsMyFav = !block.IsMyFav;
     // setSelectedResponse(currBlockId, block);
     // setResponseId(block.ID);
@@ -124,19 +111,18 @@ export const VariationBlock = ({ block, zoom, color, scaleIn }) => {
           query: block.Result,
           context: block.Context,
           resId: block.ID,
-        //   aiPanelRef: response.aiPanelRef
         }
       };
       // set block style that the background color is light blue
       // console.log("blockId is ", this.blockId)
       // this.blockIndex = api.blocks.getCurrentBlockIndex()
-      console.log("block count", api.blocks.getBlocksCount())
+      // console.log("block count", api.blocks.getBlocksCount())
       api.blocks.insert(blockToAdd.type, blockToAdd.data, null, api.blocks.getBlocksCount());
       setSelectedResponse(currBlockId, block);
       setResponseId(block.ID);
       
     } else { // the block is not edited
-      console.log("edited map", editedMap)
+      // console.log("edited map", editedMap)
       setSelectedResponse(currBlockId, block);
       setResponseId(block.ID);
     }
@@ -175,9 +161,8 @@ export const VariationBlock = ({ block, zoom, color, scaleIn }) => {
     //   console.log("opacity because of" + (!isWantedNode(block.ID) ? 'is wanted node' : 'myFav'))
     // }
 
-
     // scale in and out transition -> ${animationClass} 
-    return `${block.ID === responseId ? 'red-shadow' : ''} ${(nodeHasSelectedLabel(selectedLabelIds) || (blockIsFilteredIn(dimensionMap, block) && !(someNodeSelected(selectedLabelIds) && allDimensionFiltersOff(dimensionMap)))) ? '' : 'low-opacity'} ${((myFav && !block.IsMyFav) || !isWantedNode(block.ID)) ? 'low-opacity' : ''}` // Need to add, if no filters present, hover should cover thing.
+    return `${block.ID === responseId ? 'outlined' : ''} ${(nodeHasSelectedLabel(selectedLabelIds) || (blockIsFilteredIn(dimensionMap, block) && !(someNodeSelected(selectedLabelIds) && allDimensionFiltersOff(dimensionMap)))) ? '' : 'low-opacity'} ${((myFav && !block.IsMyFav) || !isWantedNode(block.ID)) ? 'low-opacity' : ''}` // Need to add, if no filters present, hover should cover thing.
   }, [block.IsMyFav, myFav, zoom, animationClass, selectedLabelIds, axes])
 
 // b n O
@@ -225,8 +210,8 @@ export const VariationBlock = ({ block, zoom, color, scaleIn }) => {
       <div className="labels">
         {Object.entries(block.Dimension.categorical).map(([key, value]) => <DimensionLabel {...{keyword: `${key} : ${value}`}} />)}
       </div>
-
-      <DetailsFooter {...{block, loadingMore, setLoadingMore, onBookmarkHandler, onClickHandler, onSelectedHandler, nodeMap, setNodeMap}} />
+      {/* <DetailsFooter {...{block, loadingMore, setLoadingMore, onBookmarkHandler, onClickHandler, onSelectedHandler, nodeMap, setNodeMap}} /> */}
+      <DetailsFooter {...{block, onBookmarkHandler, onClickHandler, onSelectedHandler,}} />
     </div>;
   } else {
     return <div key={block.ID + 'full'} className={`block-full ${nodeClassName()}`} style={{background: color+'99'}} onClick= {()=>onClickHandler(block)}>
@@ -256,7 +241,7 @@ const DetailsFooter = ({block, loadingMore, setLoadingMore, onBookmarkHandler, o
       if (loadingMore) return;
       setLoadingMore(true)
       addSimilarNodesToSpace(block, nodeMap, setNodeMap).then(data => {
-        setLoadingMore(false);
+      setLoadingMore(false);
       })
     }}>
       {
@@ -276,11 +261,5 @@ const DetailsFooter = ({block, loadingMore, setLoadingMore, onBookmarkHandler, o
     }}>
       <Bookmark style={{color: block.IsMyFav ? '#fff' : '#aaa', width: '20px', height: '20px'}}/>
     </button>
-  {/* <button onClick={() => onSelectedHandler(block)} style={{
-    // background: block.IsMyFav ? '#1b1b1b99' : '',
-  }}>
-    <CheckCircle style={{color: '#aaa'}}/>
-  </button> */}
-    {/* <button onClick={() => onClickHandler(block)}>Details</button> */}
   </div>
 )

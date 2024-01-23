@@ -5,7 +5,7 @@ import { ApiInputModal } from './api-input';
 import { ContactModal } from './contact';
 import './app-bar.scss';
 
-const LOGO = '/src/assets/luminate-logo-w-words.svg';
+const LOGO = 'luminate-logo-w-words.svg';
 
 export const LuminateAppBar = () => {
   const handleRedirect = () => {
