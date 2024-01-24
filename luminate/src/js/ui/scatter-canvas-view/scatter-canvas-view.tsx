@@ -1,17 +1,15 @@
 import React, { useEffect, useReducer, useState } from "react"
-import { ScatterSpace } from "../components/scatter-space/scatter-space"
-import CanvasPanel from "../react-flow-canvas/canvas-panel"
+import { ScatterSpace } from "../visualization/scatter-space/scatter-space"
 
 import './scatter-canvas-view.scss';
-import { ScatterPanel } from "../components/scatter-panel/scatter-panel";
-import {SemanticLevelPanel} from "../components/semantic-level-panel/semantic-level-panel";
+import { ScatterPanel } from "../visualization/scatter-panel/scatter-panel";
 import DatabaseManager from "../../db/database-manager";
 import useCurrStore from "../../store/use-curr-store";
 import useDimStore from "../../store/use-dim-store";
-import { AxisX } from "../components/axis/axis-x";
-import { AxisY } from "../components/axis/axis-y";
-import { Camera } from "../components/scatter-space/scatter-space.zui";
-import { dimensionsToAxes } from "../components/scatter-space/scatter-space.helper";
+import { AxisX } from "../visualization/axis/axis-x";
+import { AxisY } from "../visualization/axis/axis-y";
+import { Camera } from "../visualization/scatter-space/scatter-space.zui";
+import { dimensionsToAxes } from "../visualization/scatter-space/scatter-space.helper";
 
 export const ScatterCanvasView = () => {
 
@@ -44,9 +42,6 @@ export const ScatterCanvasView = () => {
     setAllNodeMap(data);
     // remove all dimensions in the store
     setDimensions([]);
-    // remove all labels in the store
-    // setLabels([]);
-
     forceUpdate(x => x+1);
   }, [currBlockId]);
 

@@ -4,8 +4,7 @@ import useEditorStore from "../store/use-editor-store";
 import DatabaseManager from "../db/database-manager";
 import useSelectedStore from "../store/use-selected-store";
 import * as bootstrap from 'bootstrap';
-import { uuid } from "./util";
-import ToastContainer from "../ui/toasts";
+import { uuid, getEnvVal } from "./util";
 import { generateCategoricalDimensions, validateFormatForDimensions } from "./gpt-util";
 
 const DELIMITER = "####";
@@ -268,7 +267,7 @@ async function generateResponse(message){
         const response = await fetch('https://api.openai.com/v1/completions', {
             method: 'POST',
             headers: {
-            Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
+            Authorization: `Bearer ${getEnvVal('VITE_OPENAI_API_KEY')}`,
             'Content-Type': 'application/json',
             },
             body: JSON.stringify({
@@ -469,7 +468,7 @@ async function summarizeText(text){
     const response = await fetch('https://api.openai.com/v1/completions', {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
+        Authorization: `Bearer ${getEnvVal('VITE_OPENAI_API_KEY')}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -575,7 +574,7 @@ export async function addNewDimension(prompt, dimensionName, dimensionMap, setDi
 
     // Add dimension to dimension Map
     dimensionMap[name] = {
-        id: dimensionMap.length,
+        id: Object.keys(dimensionMap).length,
         name: name,
         type: "categorical",
         values: values,
@@ -593,27 +592,64 @@ export async function addNewDimension(prompt, dimensionName, dimensionMap, setDi
     DatabaseManager.postDimension(currBlockId, name, newDimensionToStore) 
 
     // for each response, run reviseResponseWithNewDimensionLabel
-    const reviseResponsePrompt = `\nThis is the newly added dimension: ${dimensionName}, and these are the dimension values: [${values.join(', ')}]
-    The current response below already contains values of the existing dimensions. Revise this response such that the most relevant value from the dimension ${dimensionName} is added in the story.`;
+    const assignLabelPrompt = 
+        `\nThis is the newly added dimension: ${dimensionName}
+        ####
+        these are the dimension values: [${values.join(', ')}]
+        ####
+        Assign a value from the dimension ${dimensionName} to the following response.`
     const data = {};
     const responsePromises = Object.entries(nodeMap).map(async ([id, node], i) => {
-        const wordLimit = "Limit the response to 150 words.\n\n"
-        const message = wordLimit + "Prompt: " + reviseResponsePrompt + "\n" + "Current response: " + node["Result"];
-        const response = await generateResponse(message);
-        const summary = await abstraction(response);
-        data[id] = {
-            ...node,
-            ID: id,
-            Result: response,
-            Summary: summary["Summary"],
-            Keywords: summary["Key Words"],
-            Structure: summary["Structure"],
+        try{
+            const wordLimit = "Limit the response to 150 words."
+            const formatReq = `
+            ####
+            answer in the following JSON format: 
+            {
+                "label": "<label>"
+            }`
+            const assignLabelMessage = "Prompt: " + assignLabelPrompt + "####" + "Current response: " + node["Result"]+ "####" + formatReq;
+            var labelResponse = await generateResponse(assignLabelMessage);
+            var label = "";
+            for (let i = 0; i < 5; i++){
+                try {
+                    label = JSON.parse(labelResponse)["label"];
+                    break;
+                } catch (error) {
+                    labelResponse = await generateResponse(assignLabelMessage);
+                }
+            }
+            // parse the response to get the dimension label
+            const reviseResponsePrompt = `Revise this response such that it shows ${label} in the sense of ${dimensionName}.`;
+            const reviseResponseMessage = wordLimit + "####" + "Prompt: " + reviseResponsePrompt + "####" + "Current response: " + node["Result"];
+            var result = await generateResponse(reviseResponseMessage);
+            result = result.trim();
+            const summary = await abstraction(result);
+            // add the new label to the Dimension - categorical
+            console.log("node", node);
+            node["Dimension"]["categorical"][dimensionName] = label;
+            data[id] = {
+                ...node,
+                ID: id,
+                Result: result,
+                Summary: summary["Summary"],
+                Keywords: summary["Key Words"],
+                Structure: summary["Structure"],
+                Title: summary["Title"],
+            }
+        } catch (error) {
+            console.log(error);
+            return;
         }
     })
-    await Promise.all(responsePromises);
+     await Promise.allSettled(responsePromises);
     setNodeMap({
         ...data,
     });
+
+    // get all the data from the local storage
+    // DatabaseManager.getAllData(currBlockId);
+    // update the data in the local storage
 
     // show a toast to notify the user
     DatabaseManager.addBatchData(currBlockId, data);
@@ -623,12 +659,13 @@ export async function addNewDimension(prompt, dimensionName, dimensionMap, setDi
         msg.textContent = "Current responses updated.";
         toast.show();
     }
+    return;
 
 }
 
-// /*
-//  * Create new labels for a given dimension
-//  */
+/*
+ * Create new labels for a given dimension
+ */
 async function createLabelsFromDimension(prompt, dimensionName){
     const message =  `Given a dimension name, return a list of labels for that dimension for the prompt ${prompt}
     ####
@@ -642,7 +679,7 @@ async function createLabelsFromDimension(prompt, dimensionName){
     const response = await fetch('https://api.openai.com/v1/completions', {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
+          Authorization: `Bearer ${getEnvVal('VITE_OPENAI_API_KEY')}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({

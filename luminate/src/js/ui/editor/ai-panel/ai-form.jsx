@@ -110,7 +110,7 @@ export default function AiForm({responseHandler, selectedContent}) {
         const startTime = Date.now();
 
         // generate the space
-        const num = 40; //batch size
+        const num = DatabaseManager.getBatchSize(); //batch size
         const onFinished = await SpaceUtil.buildSpace(currBlockId, dims, num, query, context);
         // make a toast to indicate that the space is generated
         var toast = new bootstrap.Toast(document.getElementById('fav-toast'));

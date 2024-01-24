@@ -17,7 +17,9 @@ export function WelcomeModal() {
   const handleSubmit = (event,reason) => {
     event.preventDefault();
     const data = new FormData(event.target);
+    console.log("data",data)
     const apiToken = data.get('openai-api');
+    console.log(apiToken);
     // save data into env variables
     saveEnvVal('VITE_OPENAI_API_KEY', apiToken as string);
     handleClose(event,reason);
@@ -58,7 +60,7 @@ export function WelcomeModal() {
               fullWidth
               id="openai-api"
               label="Enter your OpenAPI Key"
-              name="input"
+              name="openai-api"
               autoFocus
             />
             <p className='note'>

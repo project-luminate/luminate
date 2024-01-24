@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import { useEffect, useReducer, useRef } from 'react';
-import { Axes, Dimension, dimensionIndex, getNumericalDimensionRange, normalize } from '../components/scatter-space/scatter-space.helper';
+import { Axes, Dimension, dimensionIndex, getNumericalDimensionRange, normalize } from '../visualization/scatter-space/scatter-space.helper';
 
 const strength = -150;
 const alpha = 0.1;

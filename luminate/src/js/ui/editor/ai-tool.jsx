@@ -1,7 +1,6 @@
-import * as bootstrap from 'bootstrap';
 import { createRoot } from "react-dom/client";
 import AiBlock from './ai-block.jsx';
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React from "react";
 import useCurrStore from '../../store/use-curr-store';
 import useEditorStore from '../../store/use-editor-store.jsx';
 import DatabaseManager from '../../db/database-manager';
@@ -12,14 +11,6 @@ import DatabaseManager from '../../db/database-manager';
 */
 
 class AiTool{
-
-    // static get toolbox() {
-    //   return {
-    //     title: 'AI Block',
-    //     icon: '<i class="material-icons">smart_toy</i>',
-    //   };
-    // }
-
     constructor({data, config, api, block}) {
       this.data = data;
       this.api = api;

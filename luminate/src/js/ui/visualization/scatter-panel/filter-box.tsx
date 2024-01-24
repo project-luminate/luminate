@@ -3,10 +3,7 @@ import Slider from '@mui/material/Slider';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
-
-import useDimStore from '../../../store/use-dim-store';
 import ValueChipArray from './value-chip-array/value-chip-array';
-// import ValueChipArray from './value-chip-array';
 
 export const FilterBox = ({d}) => {
     const [value, setValue] = useState(d.values)

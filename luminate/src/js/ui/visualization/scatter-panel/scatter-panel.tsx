@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from "react"
 import * as bootstrap from 'bootstrap';
 
-
 import './scatter-panel.scss';
 import { styled, alpha } from "@mui/material/styles";
 import { Button, Checkbox, FormControl, IconButton, ListItemText, MenuItem, Select, Fab, CircularProgress, InputBase} from '@mui/material';
@@ -11,15 +10,14 @@ import useDimStore from '../../../store/use-dim-store';
 import useCurrStore from "../../../store/use-curr-store";
 import DatabaseManager from "../../../db/database-manager";
 import { Dimension } from "../scatter-space/scatter-space.helper";
-
 import {addNewDimension} from '../../../util/space-generation-util';
 
 import Fuse from 'fuse.js';
 
 
 export const ScatterPanel = ({updateNodePositions, camera, setCamera}) => {
-  const {currBlockId, setCurrBlockId, nodeMap, setNodeMap, dimensionMap, setDimensionMap, selectedLabelIds, setSelectedLabelIds, keywordNodes, setKeywordNodes, addKeywordNode, removeKeywordNode,  addFilteredLabel, removeFilteredLabel} = useCurrStore();
-  const {labels, dimensions, addLabel, setDimensions, myFav, toggleMyFav} = useDimStore();
+  const {currBlockId, nodeMap, setNodeMap, dimensionMap, setDimensionMap, setKeywordNodes, addKeywordNode, addFilteredLabel, removeFilteredLabel} = useCurrStore();
+  const {myFav, toggleMyFav} = useDimStore();
   const [query, setQuery] = useState('');
   const [addDimensionInput, setAddDimensionInput] = useState('');
   const [loadingGrow, setLoadingGrow] = useState(false);
@@ -103,7 +101,6 @@ export const ScatterPanel = ({updateNodePositions, camera, setCamera}) => {
     }
     // change the dictionary to array
     const data = Object.values(DatabaseManager.getAllData(currBlockId));
-    // console.log("data in array",data);
     const fuse = new Fuse(data, options)
     const result = fuse.search(query)
     console.log("fuzzy search result",result); 
@@ -272,7 +269,6 @@ export const ScatterPanel = ({updateNodePositions, camera, setCamera}) => {
         <div className="filter-dims-labels-container">
           {
             Object.values(dimensionMap as {[id:string]: Dimension}).map((dimension: Dimension) => (
-              // <div>{dimension.name}</div>
               <FormControl
                 style={{
                   background: 'none',
@@ -291,14 +287,6 @@ export const ScatterPanel = ({updateNodePositions, camera, setCamera}) => {
                   onChange={(event) => {
                     // get all the selected values
                     const {target: { value },} = event;
-                    // add the values to the dimension.filtered
-                    // for (let i = 1; i < value.length; i++) {
-                    //   if ((dimensionMap[dimension.name]?.filtered as string[])?.includes(value?.[i])) {
-                    //     removeFilteredLabel(dimension.name, value?.[i]);
-                    //   } else {
-                    //     addFilteredLabel(dimension.name, value?.[i]);
-                    //   }
-                    // }
                   }}
                   MenuProps={{
                     style: customStyles,
@@ -329,19 +317,16 @@ export const ScatterPanel = ({updateNodePositions, camera, setCamera}) => {
           <div className='add-dimension'>
           {
             loadingGrow ? 
-            <>
+            <div className='loading-grow'>
               <CircularProgress style={{color: '#777'}} size={20} />
               <div>Adding {addDimensionInput}...</div>
-            </>:
+            </div>:
             <form onSubmit={(e) => {
               e.preventDefault()
               if (loadingGrow || !addDimensionInput.trim()) return;
               // setDimensionMap(dimensionMap);
               setLoadingGrow(true);
-              console.log('currId', currBlockId);
               const prompt = DatabaseManager.getBlock(currBlockId)?.prompt;
-              console.log('add new dimension', prompt);
-              console.log('add dimension input', addDimensionInput);
               addNewDimension(prompt, addDimensionInput, dimensionMap, setDimensionMap, nodeMap, setNodeMap).then(data => {
                 setLoadingGrow(false);
                 setAddDimensionInput('');
@@ -411,10 +396,7 @@ const KeywordSearch = styled('div')(({ theme }) => ({
   },
   marginRight: "10px",
   width: '100%',
-  [theme.breakpoints.up('sm')]: {
-  //   marginLeft: theme.spacing(1),
-    width: 'auto',
-  },
+  [theme.breakpoints.up('sm')]: { width: 'auto',},
 }));
 
 const SearchIconWrapper = styled('div')(({ theme }) => ({

@@ -10,8 +10,6 @@
 
   .menu {
     display: flex;
-    // flex-direction: column;
-    // justify-content: center;
     gap: 12px;
     button {
       width: 42px;
@@ -105,7 +103,7 @@
       padding: 0;
     }
     .filter-dim-label{
-      margin-right: 5px;
+      margin-left: 5px;
       height: 42px;
       background: #ffffff99;
       backdrop-filter: blur(6px);
@@ -141,6 +139,12 @@
     border: 2px solid #eee;
     // box-shadow: 0 0 0px 4px rgba(0,0,0,0.1);
     padding: 4px;
+    .loading-grow{
+      display: flex;
+      width: fit-content;
+      flex-direction: row;
+      gap: 4px;
+    }
     input {
       width: 150px;
     }

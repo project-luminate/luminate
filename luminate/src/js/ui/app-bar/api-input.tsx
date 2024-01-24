@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Modal, Box, Typography, TextField, Button, Tooltip } from '@mui/material';
+import { Modal, Box, TextField, Tooltip } from '@mui/material';
 import {Settings} from '@mui/icons-material';
-import { saveEnvVal } from '../../util/util';
+import { saveEnvVal, getEnvVal } from '../../util/util';
 import DatabaseManager from '../../db/database-manager';
 import './api-input.scss';
 import '../../db/database-manager';
@@ -17,8 +17,6 @@ export function ApiInputModal() {
     event.preventDefault();
     const data = new FormData(event.target);
     const apiToken = data.get('openai-api');
-    console.log('API Key:', apiToken);
-
     const batchSize = data.get('batch-size');
     const dimensionSize = data.get('num-dims');
     // save data into env variables
@@ -65,7 +63,7 @@ export function ApiInputModal() {
               id="openai-api"
               label="Enter your OpenAPI Key"
               name="openai-api"
-              defaultValue={import.meta.env.VITE_OPENAI_API_KEY as string}
+              defaultValue={getEnvVal('VITE_OPENAI_API_KEY')}
               autoFocus
             />
             <TextField

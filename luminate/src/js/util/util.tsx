@@ -1,15 +1,12 @@
-import { defineConfig, loadEnv } from 'vite'
-
 export const uuid = (): string => new Date().getTime().toString(36) + Math.random().toString(36).slice(2);
 
 export const saveEnvVal = (key: string, value: string) => {
-  const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
-  console.log('API Key:', apiKey);
-  // save api key
   import.meta.env[key] = value;
-  const testKey = import.meta.env.VITE_OPENAI_API_KEY;
-  console.log('Test Key:', testKey);
 };
+
+export const getEnvVal = (key: string): string => {
+  return import.meta.env[key];
+}
 
 export const colors : string[] = [
   '#FF6E67',

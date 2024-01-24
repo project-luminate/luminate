@@ -1,26 +1,20 @@
-import dimensions from '../../data/dimensions-new.json';
-import data from '../../data/responses.json';
-
 const DIM = "dimensions";
 const DATA = "data";
 const BLOCK = "block";
 const BATCH = "batch";
 const NUM_DIM = "dim";
-const CURR = "current";
 
 /*
 A class that manages the local storage
     DIM: dimensions
     DATA: data
     BLOCK: block
-    FAV: favorite @deprecated
-    CURR: current @reserved
 */
 export default class DatabaseManager {
     // use the test data
     static initTestData() {
-        DatabaseManager.storePair(DIM, {"0": dimensions});
-        DatabaseManager.storePair(DATA, {"0":data});
+        DatabaseManager.storePair(DIM, {"0": 0});
+        DatabaseManager.storePair(DATA, {"0":0});
         DatabaseManager.storePair(BLOCK, {"0":0})
         DatabaseManager.storePair(BATCH, 40);
         DatabaseManager.storePair(NUM_DIM, 5);

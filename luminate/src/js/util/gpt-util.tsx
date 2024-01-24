@@ -1,5 +1,7 @@
 import useEditorStore from "../store/use-editor-store";
+import DatabaseManager from "../db/database-manager";
 import { nominalDimensionDef, ordinalDimensionDef } from "./prompts";
+import { getEnvVal } from "./util";
 
 const MAX_TOKEN_BIG = 1000;
 const MAX_TOKEN_SMALL = 256;
@@ -17,7 +19,6 @@ export async function generateDimensions(query, context){
   // console.log("ejData", ejData);
   // get the last block
   let prevContext = ""
-  // console.log("ejData context", prevContext);
   let background = "";
   if (prevContext !== "" && context !== ""){
     background =`(${prevContext}) AND ( ${context})`;
@@ -30,13 +31,8 @@ export async function generateDimensions(query, context){
   const message = background !== "" ?
     "This is the context:\n" + background + "\n---end context ---\n\n" + query
     : query;
-  let categoricalDims = await generateCategoricalDimensions(message, 5, 6);
-  let ordinalDims = await generateOrdinalDimensions(message, 5);
-  // let numericalDims = {
-  //     "Length": [200, 500],
-  //     "Sentiment": [-1, 1],
-  //     "Paragraph Count": [1, 3],
-  // }
+  let categoricalDims = await generateCategoricalDimensions(message, DatabaseManager.getDimensionSize(), 6);
+  let ordinalDims = await generateOrdinalDimensions(message, DatabaseManager.getDimensionSize());
   let res = {}
   
   for (let i = 0; i < 5; i++){
@@ -47,7 +43,7 @@ export async function generateDimensions(query, context){
     };
     // If first response fails, generate at high temperature
     fail += 1;
-    categoricalDims = await generateCategoricalDimensions(message, 5, 6, 0.8)
+    categoricalDims = await generateCategoricalDimensions(message, DatabaseManager.getDimensionSize(), 6)
   }
 
   for (let i = 0; i < 5; i++){
@@ -62,13 +58,12 @@ export async function generateDimensions(query, context){
         break
     };
     fail += 1;
-    ordinalDims = await generateOrdinalDimensions(message, 7);
+    ordinalDims = await generateOrdinalDimensions(message, DatabaseManager.getDimensionSize());
   }
   if (res){
     const end = new Date().getTime();
     console.log("Time to generate dimensions: ", end - start, "ms");
     console.log("Failed to generate dimensions: ", fail, "out of", total);
-    // res["numerical"] = numericalDims;
     return res;
   }
   const end = new Date().getTime();
@@ -90,13 +85,13 @@ export async function generateCategoricalDimensions(prompt, catNum, valNum, temp
     const response = await fetch('https://api.openai.com/v1/completions', {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
+          Authorization: `Bearer ${getEnvVal('VITE_OPENAI_API_KEY')}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           model: MODEL,
           prompt: `${message}`,
-          temperature: TEMPERATURE,
+          temperature: temperature,
           max_tokens: MAX_TOKEN_BIG,
           top_p: TOP_P,
           frequency_penalty: 0.75,
@@ -122,7 +117,7 @@ export async function generateOrdinalDimensions(prompt, catNum){
   const response = await fetch('https://api.openai.com/v1/completions', {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
+        Authorization: `Bearer ${getEnvVal('VITE_OPENAI_API_KEY')}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -211,7 +206,7 @@ export async function getRelatedTextBasedOnDimension(dimension, val, text){
     const response = await fetch('https://api.openai.com/v1/completions', {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
+        Authorization: `Bearer ${getEnvVal('VITE_OPENAI_API_KEY')}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -257,7 +252,7 @@ export async function getKeyTextBasedOnDimension(kvPairs, text){
   const response = await fetch('https://api.openai.com/v1/completions', {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
+      Authorization: `Bearer ${getEnvVal('VITE_OPENAI_API_KEY')}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({

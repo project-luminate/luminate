@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React from 'react';
 import { createRoot } from "react-dom/client";
 import AiForm from './ai-panel/ai-form.jsx';
 import EditorJS from '@editorjs/editorjs';
@@ -41,8 +41,6 @@ export default class GptApiBlockTune {
             this.blockIndex = this.api.blocks.getCurrentBlockIndex()
             this.api.blocks.insert(blockToAdd.type, blockToAdd.data, null, this.blockIndex? this.blockIndex : this.api.blocks.getBlocksCount());
             // get the current block id
-            
-
         }
         catch (error) {
             console.log("error", error);
