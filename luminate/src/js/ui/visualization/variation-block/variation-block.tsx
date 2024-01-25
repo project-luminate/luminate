@@ -17,7 +17,7 @@ import useEditorStore from "../../../store/use-editor-store";
 
 export const VariationBlock = ({ block, zoom, color, scaleIn }) => {
 
-  const {dimensionMap, selectedLabelIds,  nodeMap, setNodeMap, currBlockId, wantedNodes, keywordNodes } = useCurrStore();
+  const {dimensionMap, selectedLabelIds,  nodeMap, setNodeMap, currBlockId, currDataId, wantedNodes, keywordNodes } = useCurrStore();
   const {responseId, setResponseId} = useResponseStore();
   const {setSelectedResponse} = useSelectedStore();
   const {dimensions} = useDimStore();
@@ -36,7 +36,6 @@ export const VariationBlock = ({ block, zoom, color, scaleIn }) => {
 
       let prompt = "";
       if (match && match[0]) {
-        // remove Prompt: and ####
         prompt = match[0].substring(8, match[0].length - 5);
       } else {
         prompt = "Prompt not found.";
@@ -51,21 +50,20 @@ export const VariationBlock = ({ block, zoom, color, scaleIn }) => {
           query: prompt,
           context: block.Context,
           resId: block.ID,
-        //   aiPanelRef: response.aiPanelRef
         }
       };
-      // console.log("block count", api.blocks.getBlocksCount())
       api.blocks.insert(blockToAdd.type, blockToAdd.data, null, api.blocks.getBlocksCount());
       DatabaseManager.postBlock(currBlockId, prompt, block.Result, block.ID);
 
       setSelectedResponse(currBlockId, block);
       setResponseId(block.ID);
       editedMap[currBlockId] = false; //since new block is added, set the editedMap to false
+      console.log("edited map blcok ID", block.ID);
       
     } else { // the block is not edited
-      console.log("edited map", editedMap)
       setSelectedResponse(currBlockId, block);
       setResponseId(block.ID);
+      console.log("edited map blcok ID", block.ID);
     }
 
   };
@@ -120,7 +118,6 @@ export const VariationBlock = ({ block, zoom, color, scaleIn }) => {
       api.blocks.insert(blockToAdd.type, blockToAdd.data, null, api.blocks.getBlocksCount());
       setSelectedResponse(currBlockId, block);
       setResponseId(block.ID);
-      
     } else { // the block is not edited
       // console.log("edited map", editedMap)
       setSelectedResponse(currBlockId, block);
@@ -225,10 +222,6 @@ export const VariationBlock = ({ block, zoom, color, scaleIn }) => {
         <div className="labels">
           {Object.entries(block.Dimension.categorical).map(([key, value]) => <DimensionLabel {...{keyword: `${key} : ${value}`}} />)}
         </div>
-        {/* <div className="related-sentences">
-          <h6>Sentences Related to Response</h6>
-          <i>This is a sentence.</i>
-        </div> */}
         <DetailsFooter {...{block, loadingMore, setLoadingMore, onBookmarkHandler, onClickHandler, onSelectedHandler, nodeMap, setNodeMap}} />
       </div>
     </div>;

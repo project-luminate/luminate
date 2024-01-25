@@ -1,18 +1,15 @@
-import React, { useRef, useState, useEffect, useReducer } from 'react';
-import ReactFlow, { Background, BackgroundVariant, Panel, useNodesState, useEdgesState, addEdge, MiniMap, Controls } from 'reactflow';
+import React, { useRef, useState } from 'react';
 import DatabaseManager from "../../../db/database-manager";
 import { useForceLayout } from '../../hooks/use-force-layout.js';
 import { SemanticLevelPanel } from '../semantic-level-panel/semantic-level-panel.jsx';
 
 import './scatter-space.scss';
 import { VariationBlock } from '../variation-block/variation-block.js';
-import { Box, Camera, getViewport, getViewportFromRect, identityViewport, zoomCamera } from './scatter-space.zui.js';
+import { getViewportFromRect, identityViewport } from './scatter-space.zui.js';
 import { useCanvasViewport } from '../../hooks/use-canvas-viewport.js';
 import useCurrStore from '../../../store/use-curr-store';
 import useDimStore from '../../../store/use-dim-store.jsx';
 import { Label, dimensionsToAxes, nodeColor } from './scatter-space.helper.js';
-import { useStore } from 'zustand';
-import * as bootstrap from 'bootstrap';
 import { growSpace } from '../../../util/space-generation-util';
 import { allDimensionFiltersOff } from '../variation-block/variation-block.helper.js';
 import { SwitchAccessShortcutAdd } from '@mui/icons-material';

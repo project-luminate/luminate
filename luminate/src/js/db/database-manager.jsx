@@ -194,4 +194,19 @@ export default class DatabaseManager {
         DatabaseManager.storePair(DATA, data);
         console.log("data after add batch", data);
     }
+
+    /* given a certain data, return the dimensions in the data */
+    static getDataDimensions(id, key) {
+        const data = JSON.parse(localStorage.getItem("data"));
+        const categorical =  data[id][key]["Dimension"]["categorical"];
+        const ordinal = data[id][key]["Dimension"]["ordinal"];
+        var response = ""; 
+        Object.entries(categorical).forEach(([k, v]) => {
+            response += k + ": " + v + "\n";
+        });
+        Object.entries(ordinal).forEach(([k, v]) => {
+            response += k + ": " + v + "\n";
+        });
+        return response;
+    }
 }

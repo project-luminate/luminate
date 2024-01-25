@@ -16,7 +16,6 @@ export async function generateDimensions(query, context){
   let total = 0;
   const {api} = useEditorStore.getState();
   const ejData = await api.save();
-  // console.log("ejData", ejData);
   // get the last block
   let prevContext = ""
   let background = "";
@@ -151,7 +150,7 @@ export async function generateNumericalDimensions(prompt, numNum){
     const response = await fetch('https://api.openai.com/v1/completions', {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
+        Authorization: `Bearer ${getEnvVal('VITE_OPENAI_API_KEY')}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -273,22 +272,15 @@ export async function getKeyTextBasedOnDimension(kvPairs, text){
   return result;
 }
 
+/*validate the format of the response
+  return true if the response is in the correct format
+  return false if the response is not in the correct format
+*/
 export function validateFormatForDimensions(response: string, isNumerical: boolean){
-  // validate the format of the response
-  // return true if the response is in the correct format
-  // return false if the response is not in the correct format
   try {
       // check if the response is in the JSON format
       const result = JSON.parse(response);
       console.log("result format",result);
-      //  check if there are any infinities or NaNs
-      if (isNumerical)
-          for (const [low, high] of Object.values(result)) {
-              if (!isFinite(low) || !isFinite(high) || low >= high) {
-                  console.log("invalid numerical dimension", low, high);
-                  return false;
-              }
-          }
       return true
   }
   catch (e) {

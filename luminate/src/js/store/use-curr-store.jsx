@@ -5,8 +5,11 @@ import { create } from 'zustand'
 const useCurrStore = create((set) => ({
     currBlockId : null,
     maxBlockId : 0,
+    currDataId : null,
     focusedBlockId : 0,
 
+    setCurrDataId: (id) => set((state) => ({
+        rcurrDataId: id})),
     // what should be set opacity !!! actually, these are nodes that are ****NOT**** wanted!!!
     dimensionMap: {},
     setDimensionMap: (dimensionMap) => set((state) => {

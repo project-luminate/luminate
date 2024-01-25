@@ -69,7 +69,7 @@ export async function buildSpace(currBlockId, dimensions, numResponses, prompt, 
     // // get the block id of the last block
     // const lastBlockId = api.blocks.getBlockByIndex(-1).id;
 
-    const {maxBlockId, setMaxBlockId} = useCurrStore.getState();
+    const {maxBlockId, setMaxBlockId, } = useCurrStore.getState();
     const {selectedResponse, setSelectedResponse} = useSelectedStore.getState();
     // generate a response for each requirement
     const startTime = Date.now();
@@ -340,6 +340,8 @@ function genDimRequirements(dimensions, numResponses){
         datum["ID"] = uuid();
         if ( useResponseStore.getState().responseId === null){
             useResponseStore.getState().setResponseId(datum["ID"]);
+            useCurrStore.getState().setCurrDataId(datum["ID"]);
+
         }
         datum["Dimension"] = {"categorical": {}, "numerical": {}, "ordinal": {}};
         Object.entries(dimensions["categorical"]).forEach(([d, v]) => {
@@ -626,7 +628,6 @@ export async function addNewDimension(prompt, dimensionName, dimensionMap, setDi
             result = result.trim();
             const summary = await abstraction(result);
             // add the new label to the Dimension - categorical
-            console.log("node", node);
             node["Dimension"]["categorical"][dimensionName] = label;
             data[id] = {
                 ...node,

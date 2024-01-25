@@ -67,7 +67,7 @@ export function WelcomeModal() {
               You can find your Secret OpenAI API key in your <a href="https://platform.openai.com/account/api-keys" target="_blank">User Settings</a>
             </p>
             <p className='note'>
-              Each prompt will results in around 82 requests and may cost upto $0.8 USD.
+              Each prompt will results in around 80 requests and may cost upto $0.8 USD.
               You can find detailed information about the cost in  <a href="https://openai.com/pricing" target="_blank">Pricing</a>
             </p>
             <p className='note'>

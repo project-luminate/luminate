@@ -117,8 +117,6 @@ export const ScatterPanel = ({updateNodePositions, camera, setCamera}) => {
     for (let i = 0; i < result.length; i++) {
       addKeywordNode((result[i].item as any[])['ID'] ?? 0);
     }
-    // setNodeMap(newMap);
-    // document.getElementById('full-text-button')?.click();
   }
 
   useEffect(() => {
@@ -168,31 +166,6 @@ export const ScatterPanel = ({updateNodePositions, camera, setCamera}) => {
     <div className='scatter-panel'>
       {/* Filter Labels */}
       <div className='menu'>
-        {/* <IconButton type="button" aria-label="editor" onClick={() => {
-          updateToggleFilterState('editor')
-        }}
-        style={{
-          background: displayState('editor') === 'none' ? '#ffffff99' : '#1b1b1b99',
-        }}
-        >
-          {
-            <Notes style={{
-              color: displayState('editor') === 'none' ? '#aaa' : '#fff'
-            }}/>
-          }
-        </IconButton>
-        <IconButton type='button' aria-label='filter' onClick={() => {
-          updateToggleFilterState('filter')
-        }}
-        style={{
-          background: displayState('filter') === 'none' ? '#ffffff99' : '#1b1b1b99',
-        }}>
-          {
-            <Tune style={{
-              color: displayState('filter') === 'none' ? '#aaa' : '#fff'
-            }}/>
-          }
-        </IconButton> */}
         {
           <IconButton type='button' aria-label='hide-bar' onClick={() => {
             displayState('none') === 'none' ? updateToggleFilterState('none' ) :updateToggleFilterState('editor')
@@ -248,7 +221,6 @@ export const ScatterPanel = ({updateNodePositions, camera, setCamera}) => {
       </div>
 
       {/* Filter Dimensions & Labels */}
-      
       <div className="filter-dims-labels">
         <div className="fab-container-left">
             <Fab size="small" aria-label="add" className="fab" 

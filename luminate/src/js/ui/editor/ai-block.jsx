@@ -17,7 +17,7 @@ export default function AiBlock({data, api, block}) {
     const aiPanelRef = data.aiPanelRef;                                 // for the ai panel to move to the current block
     const [blockId, setBlockId] = useState(data.id);                    // for space id
     const [anchorEl, setAnchorEl] = useState(null);                     // for the popover
-    const {currBlockId, setCurrBlockId} = useCurrStore();               // for the current block id, used to change the background color
+    const {currBlockId, setCurrBlockId, currDataId} = useCurrStore();               // for the current block id, used to change the background color
     const [dataId, setDataId] = useState(data.resId);                   // for the data id, used to update the response
     const {selectedResponse, setSelectedResponse} = useSelectedStore(); // for the selected response, used to update the response
     const [backgroundColor, setBackgroundColor] = useState('#f8f7fa59');// for the background color
@@ -177,29 +177,9 @@ export default function AiBlock({data, api, block}) {
                         {context && <p>Context: {context}</p>}
                         {/* <p>ResId: {dataId}</p> */}
                         <p>Space Id: {blockId}</p>
+                        {/* <p>Dimensions \n {DatabaseManager.getDataDimensions(currBlockId,currDataId)}</p> */}
 
-                        {/* {useEffect(() => {
-                            // Initialize an array to collect the elements
-                            const elements = [];
-
-                            // for all the dimensions, show the dimension and value
-                            if (responseDimensions) {
-                            // the categorical dimensions
-                            const categoricalDimensions = responseDimensions.categorical;
-                            Object.entries(categoricalDimensions).forEach(([key, value]) => {
-                                elements.push(<span key={key}>{key}: {value}</span>);
-                            });
-
-                            // the numerical dimensions
-                            const numericalDimensions = responseDimensions.numerical;
-                            Object.entries(numericalDimensions).forEach(([key, value]) => {
-                                elements.push(<span key={key}>{key}: {value}</span>);
-                            });
-                            }
-
-                            // Return the array of elements within the JSX
-                            return elements;
-                        },[responseDimensions])} */}
+                
                     </Typography>
                 </Popover>
             </div>

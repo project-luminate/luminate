@@ -5,11 +5,6 @@ const useEditorStore = create((set) => ({
     //api
     api: null,
     // editedMap
-    /*
-        {
-            blockId: edited (edited is a boolean value, T if all the block is edited, F otherwise)
-        }
-    */
     editedMap: {},
     
     // add a new block to the editedMap

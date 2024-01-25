@@ -130,13 +130,6 @@ export default function AiForm({responseHandler, selectedContent}) {
     // when user submits the query, generate a response
     const submitListener = async (e) => {
         e.preventDefault();
-        // if continue to submit, then update the currBlockId
-        // if (!firstRendered){
-        //     // increment the maxBlockId
-        //     console.log("currBlockId inside new submission", currBlockId);
-        //     currBlockId = useCurrStore.getState().maxBlockId + 1;
-        //     console.log("currBlockId inside new submission after adding", currBlockId);
-        // }
         useResponseStore.setState({responseId: null});
         if (query === '' || query === undefined || query === null) {
             let toast = new bootstrap.Toast(document.getElementById('error-toast'));
@@ -153,7 +146,6 @@ export default function AiForm({responseHandler, selectedContent}) {
         setIsSubmitting(true);                  // during submission, disable the inputbase
        
         // generate dimensions
-        console.log("currBlockId", currBlockId);
         const dims = await generateDimensions(query, currBlockId);
         if (dims === null) {
             setIsSubmitting(false);
@@ -165,23 +157,11 @@ export default function AiForm({responseHandler, selectedContent}) {
         setIsSubmitting(false);
         setGenerationState("dimension");        // change back to dimension mode
         setQuery('');                           // clear the query for the next query
-        // setResponse('');                        // clear the response for the next response
-        // canRemove = true;                       // set canRemove to true so that user can click elsewhere to remove the panel
-        // setShowButtons(true);                     // hide the buttons
-        console.log("change submission state to false");
         // set the context to empty
         useResponseStore.setState({context: ''});
         // put the response into the database
         DatabaseManager.postBlock(currBlockId, query, response, responseId);
     }
-
-    // const onAccept = () => {
-    //     // remove the panel
-    //     console.log("Accept query:", query)
-    //     console.log("Accept response:", response)
-    //     aiPanelRef.current.remove();
-        
-    // }
 
     //  // remove the panel
     //  const onDestroy = () => {
@@ -282,7 +262,6 @@ export default function AiForm({responseHandler, selectedContent}) {
                 //   aiPanelRef: response.aiPanelRef
                 }
             };
-            console.log("b", api.blocks.getBlocksCount())
             api.blocks.insert(blockToAdd.type, blockToAdd.data, null, api.blocks.getBlocksCount());
     
         }

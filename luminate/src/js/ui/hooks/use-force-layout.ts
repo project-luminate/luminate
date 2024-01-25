@@ -62,11 +62,6 @@ export const useForceLayout = (
       forceUpdate();
     });
 
-
-    // setTimeout(() => {
-    //   console.log('stoppping', simulation.stop());
-    // }, 1000)
-
     // Clean up function to stop the simulation when the component unmounts
     return () => {
       simulation.stop();
@@ -76,14 +71,8 @@ export const useForceLayout = (
   function axesClusterForce(simulation, axes: Axes) {
     // Conditions:
     // x: cat -> count
-
-    console.log(axes)
     const force = (alpha) => {
       if (boardRect) {
-
-        // const clusterWidth = boardRect.width / n;
-        // const clusterHeight = boardRect.height / n;
-
         simulation.nodes().forEach((node, index) => {
           const targetX = dimensionClusterForce('x', axes.x, boardRect, node);
           const targetY = dimensionClusterForce('y', axes.y, boardRect, node);
@@ -98,7 +87,7 @@ export const useForceLayout = (
     return force;
   };
 
-  return;// { startSimulation: simulation.restart, stopSimulation: simulation.stop }
+  return;
 };
 
 /**
