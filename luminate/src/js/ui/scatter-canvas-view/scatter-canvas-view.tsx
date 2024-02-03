@@ -34,10 +34,9 @@ export const ScatterCanvasView = () => {
   React.useEffect(() => {
     const data = DatabaseManager.getAllData(currBlockId);
     if (data === undefined) {
-      console.log("currId", currBlockId);
+      console.log("[Warning] data undefined", " current block Id: " + currBlockId);
       return;
     }
-    console.log(data)
     setNodeMap(data);
     setAllNodeMap(data);
     // remove all dimensions in the store

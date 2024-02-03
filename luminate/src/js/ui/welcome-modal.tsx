@@ -17,9 +17,7 @@ export function WelcomeModal() {
   const handleSubmit = (event,reason) => {
     event.preventDefault();
     const data = new FormData(event.target);
-    console.log("data",data)
     const apiToken = data.get('openai-api');
-    console.log(apiToken);
     // save data into env variables
     saveEnvVal('VITE_OPENAI_API_KEY', apiToken as string);
     handleClose(event,reason);
@@ -76,7 +74,7 @@ export function WelcomeModal() {
               You may also download the source code and run it locally.
             </p>
             <button type="submit" className='submit-button'>
-              Play Luminate ⚗️
+              Play Luminate <img src="/luminate-logo.svg" style={{maxHeight: '24px'}} alt="arrow-right" />
             </button>
           </Box>
         </Box>

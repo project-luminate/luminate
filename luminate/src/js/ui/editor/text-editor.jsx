@@ -20,11 +20,7 @@ import useResponseStore from "../../store/use-response-store";
 
 export default function Editor() {
   const ejInstance = useRef();
-  const [editorData, setEditorData] = useState([]);
-  const {focusedBlockId, setFocusedBlockId} = useCurrStore();
   const {setContext} = useResponseStore();
-
-  const [x, setX] = useState(0);
 
   const getEditorInstance = () => {
     return ejInstance.current;
@@ -81,52 +77,15 @@ export default function Editor() {
       placeholder: 'Click here to write down the title',
       // defaultBlock: 'AiTool',
       data: {
-        blocks: [
-          // {
-          //   type: "header",
-          //   data: {
-          //     text: "My Story",
-          //     level: 1
-          //   }
-          // },
-          // {
-          //   type: "paragraph",
-          //   data: {
-          //     text: "Write a story about a fox",
-          //     level: 2
-          //   }
-          // },
-          // {
-          //   type: "paragraph",
-          //   data: {
-          //     text: "Write a copy writing about superconductivity",
-          //     level: 2
-          //   }
-          // },
-          // {
-          //   type: "paragraph",
-          //   data: {
-          //     text: "Write an email to Toby on appealing regrade request",
-          //     level: 2
-          //   }
-          // },
-        ]
+        blocks: []
       },
     });
     ejInstance.current = editor;
-    console.log(editor);
   };
 
 
   const handleSelectionChange = (e) => {
-    // if (e.type === 'mouseup') {
-    //   document.getElementById('chat-input')?.focus();
-    // }
-
     const selection = document.getSelection();
-    // if (!selection || !selection.toString().trim()) {
-    //   setContext('')
-    // }
 
     // Ensure the selection exists, has content, and the anchorNode's parent is an element
     if (selection && selection.toString().trim().length > 0 && selection.anchorNode && (selection.anchorNode.parentElement || selection.anchorNode.parentElement.offsetParent)) {

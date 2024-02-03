@@ -26,7 +26,6 @@ class AiTool{
         wrapper.id = 'ai-block';
         // render AI panel inside the div element
         const root = createRoot(wrapper);
-        console.log(this.block)
         if (this.block.id === 0) {
           useCurrStore.setState({currBlockId: this.block.id + 1}); // store the current block id
         } else {
@@ -35,22 +34,19 @@ class AiTool{
         root.render(<AiBlock data={this.data} api={this.api} block={this.block}/>);
         return wrapper;
       } catch (error) {
-        console.log("error", error);
+        console.log("[Error]", error);
       }
     }
 
 
     save(blockContent){
-      console.log("blockContent", blockContent);
       const dataDiv = blockContent.querySelector('div#ai-block');
-      console.log("dataDiv", dataDiv);
       return {
         text: dataDiv.innerHTML
       }
     }
 
     removed(){
-      console.log("removed");
       const currBlockId = useCurrStore.getState().currBlockId;
       if (DatabaseManager.getBlock(currBlockId).responseId===this.data.resId){
         const {editedMap} = useEditorStore.getState();

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react"
+import React, { useCallback, useState } from "react"
 import './variation-block.scss';
 import { DimensionLabel } from "../dimension-label/dimension-label";
 import { Bookmark, AutoAwesome } from "@mui/icons-material";
@@ -39,7 +39,7 @@ export const VariationBlock = ({ block, zoom, color, scaleIn }) => {
         prompt = match[0].substring(8, match[0].length - 5);
       } else {
         prompt = "Prompt not found.";
-        console.log("Fail to extract prompt.");
+        console.log("[Error]", "Fail to extract prompt.");
       }
 
       const blockToAdd = {
@@ -91,10 +91,7 @@ export const VariationBlock = ({ block, zoom, color, scaleIn }) => {
   }
 
   const onBookmarkHandler = (block) => {
-    // deactive current onclick listener
     block.IsMyFav = !block.IsMyFav;
-    // setSelectedResponse(currBlockId, block);
-    // setResponseId(block.ID);
   }
 
   const onSelectedHandler = (block) => {
@@ -111,10 +108,6 @@ export const VariationBlock = ({ block, zoom, color, scaleIn }) => {
           resId: block.ID,
         }
       };
-      // set block style that the background color is light blue
-      // console.log("blockId is ", this.blockId)
-      // this.blockIndex = api.blocks.getCurrentBlockIndex()
-      // console.log("block count", api.blocks.getBlocksCount())
       api.blocks.insert(blockToAdd.type, blockToAdd.data, null, api.blocks.getBlocksCount());
       setSelectedResponse(currBlockId, block);
       setResponseId(block.ID);
@@ -171,7 +164,7 @@ export const VariationBlock = ({ block, zoom, color, scaleIn }) => {
   if (zoom <= 1.5) {
     return <div key={block.ID + 'dot'} className={`block block-dot ${nodeClassName()}`} style={{background: color}} onClick= {()=>onClickHandler(block)}/>
   } else if (zoom <= 3) {
-    return <div className={`block block-title ${nodeClassName()}`} style={{background: color+'99'}} onClick= {()=>onClickHandler(block)}>
+    return <div key={block.ID + 'title'} className={`block block-title ${nodeClassName()}`} style={{background: color+'99'}} onClick= {()=>onClickHandler(block)}>
       {block.Title}
       <div className="labels">
           {block.Keywords.map(keyword => <DimensionLabel {...{keyword}} />)}
@@ -189,7 +182,7 @@ export const VariationBlock = ({ block, zoom, color, scaleIn }) => {
       <div className="labels">
           {block.Keywords.map(keyword => <DimensionLabel {...{keyword}} />)}
       </div>
-      {/* <DetailsFooter {...{block, loadingMore, setLoadingMore, onBookmarkHandler, onClickHandler, onSelectedHandler, nodeMap, setNodeMap}} /> */}
+      <DetailsFooter {...{block, loadingMore, setLoadingMore, onBookmarkHandler, onClickHandler, onSelectedHandler, nodeMap, setNodeMap}} />
   </div>;
   } else if (zoom <= 12) {
     return <div key={block.ID + 'sum'} className={`block-sum ${nodeClassName()}`} style={{background: color+'99'}} onClick= {()=>onClickHandler(block)}>
@@ -207,8 +200,8 @@ export const VariationBlock = ({ block, zoom, color, scaleIn }) => {
       <div className="labels">
         {Object.entries(block.Dimension.categorical).map(([key, value]) => <DimensionLabel {...{keyword: `${key} : ${value}`}} />)}
       </div>
-      {/* <DetailsFooter {...{block, loadingMore, setLoadingMore, onBookmarkHandler, onClickHandler, onSelectedHandler, nodeMap, setNodeMap}} /> */}
-      <DetailsFooter {...{block, onBookmarkHandler, onClickHandler, onSelectedHandler,}} />
+      <DetailsFooter {...{block, loadingMore, setLoadingMore, onBookmarkHandler, onClickHandler, onSelectedHandler, nodeMap, setNodeMap}} />
+      {/* <DetailsFooter {...{block, onBookmarkHandler, onClickHandler, onSelectedHandler,}} /> */}
     </div>;
   } else {
     return <div key={block.ID + 'full'} className={`block-full ${nodeClassName()}`} style={{background: color+'99'}} onClick= {()=>onClickHandler(block)}>

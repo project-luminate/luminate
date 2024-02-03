@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Typography, InputBase, Paper,} from '@mui/material';
-
-import IconButton from '@mui/material/IconButton';
+import { Typography, InputBase, Paper, IconButton} from '@mui/material';
 import {Send, Close} from '@mui/icons-material/';
+import * as bootstrap from 'bootstrap';
 
 import * as GPTUtil from '../../../util/gpt-util';
 import * as SpaceUtil from '../../../util/space-generation-util';
@@ -11,7 +10,8 @@ import useResponseStore from '../../../store/use-response-store';
 import useCurrStore from '../../../store/use-curr-store';
 import useSelectedStore from '../../../store/use-selected-store';
 import useEditorStore from '../../../store/use-editor-store';
-import * as bootstrap from 'bootstrap';
+
+
 import './ai-form.scss'
 
   
@@ -58,7 +58,6 @@ export default function AiForm({responseHandler, selectedContent}) {
     // given a query, generate new categorical and numerical dimensions and the combination of the first response
     async function generateDimensions(query, currBlockId) {
         const res = await GPTUtil.generateDimensions(query, context);
-        console.log("new dimensions for block" + currBlockId ,res);
         // const dpInstance = new DimensionPanel();
         try{
             Object.entries(res["categorical"]).forEach(([d, v]) => {
@@ -78,23 +77,23 @@ export default function AiForm({responseHandler, selectedContent}) {
 
             });
 
-            Object.entries(res["ordinal"]).forEach(([d, v]) => {
-                const data ={
-                "name": d,
-                "values": v,
-                "type": "ordinal"
-                }
-                DatabaseManager.postDimension(currBlockId, d, data);
-                addToast(d);
-                // show a toast to indicate that the dimensions are generated
-                let toast = new bootstrap.Toast(document.getElementById('fav-toast'+d));
-                document.getElementById(`toast-text-${d}`).textContent = "New dimension: " + d;
-                toast.show();
-            });
+            // Object.entries(res["ordinal"]).forEach(([d, v]) => {
+            //     const data ={
+            //     "name": d,
+            //     "values": v,
+            //     "type": "ordinal"
+            //     }
+            //     DatabaseManager.postDimension(currBlockId, d, data);
+            //     addToast(d);
+            //     // show a toast to indicate that the dimensions are generated
+            //     let toast = new bootstrap.Toast(document.getElementById('fav-toast'+d));
+            //     document.getElementById(`toast-text-${d}`).textContent = "New dimension: " + d;
+            //     toast.show();
+            // });
             setGenerationState("response");
         }
         catch (error) {
-            console.log("error when creating the space", error);
+            console.log("[Error] error when creating the space", error);
             let toast = new bootstrap.Toast(document.getElementById('error-toast'));
             document.getElementById('error-toast-text').textContent = "Failed to generate dimensions";
             toast.show();
@@ -138,10 +137,7 @@ export default function AiForm({responseHandler, selectedContent}) {
             return;
         }
 
-        console.log("On submit, Query:", query);
-        console.log("Form submitted");
         // set the loading anchor to true and disable the submit button
-        // canRemove = false;
         setFirstRendered(false);                // after first render, the inputbase value is not the selectedContent but the query
         setIsSubmitting(true);                  // during submission, disable the inputbase
        
@@ -163,72 +159,9 @@ export default function AiForm({responseHandler, selectedContent}) {
         DatabaseManager.postBlock(currBlockId, query, response, responseId);
     }
 
-    //  // remove the panel
-    //  const onDestroy = () => {
-    //     console.log("Destroy query:", query)
-    //     console.log("Destroy response:", response)
-    //     // remove the panel
-    //     aiPanelRef.current.remove();
-    //     // remove the block
-    //     for (let i = 0; i < api.blocks.getBlocksCount (); i++) {
-    //         if (api.blocks.getBlockByIndex(i).id == useCurrStore.getState().focusedBlockId){
-    //             api.blocks.delete(i);
-    //             break;
-    //         }
-    //     }
-    //     // set focused block id to null
-    //     useCurrStore.setState({focusedBlockId: null});
-    //     // remove the block from the database
-    //     useCurrStore.setState({currBlockId: null});
-    //     // remove the data from the database
-    // }
-
-    // const onExplore = () => {
-        // // Generate new dimensions
-        // const dims = DatabaseManager.getAllDimensions("0");
-        // const dm = new dimensionPanel();
-
-        // // wait for the dimension panel to be rendered
-        // setTimeout(() => {
-        //     // add the dimension panel to the canvas
-        //     for (const dimension of Object.values(dims)){
-        //         dm.addDimensionButton(dimension);
-        //     }
-        // }, 1000);
-        // generateNewDimensions(query);
-    // }
-
-    // const onDiscard = () => {
-    //     // Remove the response from the blocks
-    //     console.log("Discard response:", query);
-    //     setShowButtons(false);
-    //     canRemove = true;
-    // }
-
-    // regenerate the response
-    // const onRegenerate = async () => {
-    //     setResponse('');
-    //     const response = await generateResponse(query)
-    //     console.log("On regenerate, New Response:", response);
-    //     setResponse(response);   
-    // }
-
-    // once the response is generated, show the buttons
-    // useEffect(() => {
-    //     console.log("anchor Response:", response);
-    //     if (response && query !== '') {
-    //         setGenerationState("space");
-    //         console.log('query in the response', query);
-    //         // Add the response to the blocks
-    //         handleResponseFromAiForm({"text":response, "query":query, "id": currBlockId});
-    //     }
-    // }, [response]);
     useEffect(() => {
-        console.log("anchor Response:", response);
         if (response && query !== '') {
             setGenerationState("space");
-            console.log('query in the response', query);
-            console.log('text in the response', selectedResponse[currBlockId]);
             // Add the response to the blocks
             handleResponseFromAiForm({"text": response,"query":query, "id": currBlockId, "resId": responseId, "context": context});
             // reset the responseId to null
@@ -249,7 +182,6 @@ export default function AiForm({responseHandler, selectedContent}) {
 
       const handleResponseFromAiForm = (response) => {
         // Check if the Editor.js instance is available
-        console.log("entered handler", response);
         try{
             const blockToAdd = {
                 type: 'AiTool', 
@@ -266,8 +198,7 @@ export default function AiForm({responseHandler, selectedContent}) {
     
         }
         catch (error) {
-            console.log("the block will be inserted after", api.blocks.getBlocksCount())
-            console.log("error when isnerting the block", error);
+            console.log("[Error] error when inserting the block", error);
         }
     };
 
@@ -356,91 +287,3 @@ export default function AiForm({responseHandler, selectedContent}) {
         </>
     );
 }
-
-// generate the first response from the AI
-// const generateFirstResponse = async (query, req) => {
-//     const message = "Prompt: " + query + "\n" + "####" + "\n" + "Requirements: " + req + "\n" + "####" + "\n";
-
-//     const response = await fetch('https://api.openai.com/v1/chat/completions', {
-//         method: 'POST',
-//         headers: {
-//           Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
-//           'Content-Type': 'application/json',
-//         },
-//         body: JSON.stringify({
-//           model: 'gpt-3.5-turbo',
-//           messages: [{role: "user", content: `${message}`}],
-//           temperature: 0.7,
-//           max_tokens: 256,
-//           top_p: 1,
-//           frequency_penalty: 0.75,
-//           presence_penalty: 0,
-//           stream: true,
-//         }),
-//     });
-  
-//     const reader = response.body?.pipeThrough(new TextDecoderStream()).getReader();
-//     if (!reader) return;
-//     // eslint-disable-next-line no-constant-condition
-//     let content = '';
-//     while (true) {
-//       // eslint-disable-next-line no-await-in-loop
-//       const { value, done } = await reader.read();
-//       if (done) break;
-//       let dataDone = false;
-//       const arr = value.split('\n');
-//       arr.forEach((data) => {
-//         if (data.length === 0) return; // ignore empty message
-//         if (data.startsWith(':')) return; // ignore sse comment message
-//         if (data === 'data: [DONE]') {
-//           dataDone = true;
-//           return;
-//         }
-//         // console.log(JSON.parse(data.substring(6)));
-//         // ifcontent undefined, then set it to empty string
-//         const parsedData = JSON.parse(data.substring(6));
-//         content += parsedData["choices"][0]["delta"]["content"] === undefined ? "" : parsedData["choices"][0]["delta"]["content"];
-//         // console.log(content);
-//         content = content.replace(/^\s+/, '');
-//         setResponse(content);
-//       });
-//       if (dataDone) break;
-//     }   
-//     setShowButtons(true);
-//     return content;
-// }
-
-// given a query, generate new categorical and numerical dimensions and the combination of the first response
-// async function generateDimensions(query, currBlockId) {
-//     const res = await GPTUtil.generateDimensions(query);
-//     console.log("new dimensions for block" + currBlockId ,res);
-//     // show a toast to indicate that the dimensions are generated
-//     let toast = new bootstrap.Toast(document.getElementById('fav-toast'));
-//     document.getElementById('toast-text').textContent = "Generated Dimensions";
-//     toast.show();
-
-//     // const dpInstance = new DimensionPanel();
-//     Object.entries(res["categorical"]).forEach(([d, v]) => {
-//         const data ={
-//         "name": d,
-//         "values": v,
-//         "type": "categorical"
-//         }
-//         // randome choose a value from the categorical dimension and
-//         DatabaseManager.postDimension(currBlockId, d, data);
-//         // dpInstance.addDimensionButton(data);
-//     });
-
-//     Object.entries(res["numerical"]).forEach(([d, v]) => {
-//         const data ={
-//         "name": d,
-//         "values": v,
-//         "type": "numerical"
-//         }
-//         DatabaseManager.postDimension(currBlockId, d, data);
-//         // dpInstance.addDimensionButton(data);
-//     });
-
-//     return res;
-// }
-

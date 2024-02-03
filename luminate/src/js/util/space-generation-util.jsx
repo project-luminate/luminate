@@ -18,19 +18,6 @@ let fail_count = 0;
 let total_count = 0;
 let firstId = '';
 
-// interface ResponseData {
-//     [key: string]: {
-//         Prompt: string;
-//         Context: string;
-//         Result: string;
-//         Summary: string;
-//         Keywords: string[];
-//         Structure: string; // Adjust the type according to actual data structure
-//         Title: string;
-//         IsMyFav: boolean;
-//     };
-// }
-
 async function editorBackgroundPrompt() {
     let context=""; // FIXME: unknown context
     const {api} = useEditorStore.getState();
@@ -74,7 +61,6 @@ export async function buildSpace(currBlockId, dimensions, numResponses, prompt, 
     // generate a response for each requirement
     const startTime = Date.now();
     let responses = [];
-    console.log("dimReqs", dimReqs);
     const responsePromises = dimReqs.map(async (req, i) => {
         // parse req to get id and requirements
         const id = req["ID"];
@@ -82,8 +68,9 @@ export async function buildSpace(currBlockId, dimensions, numResponses, prompt, 
         const requirements = req["Requirements"];
         const message = wordLimit + editorBackgroundPrompt() + "Prompt: " + prompt + "\n" + DELIMITER + "\n" + "Requirements: " + requirements + "\n" + DELIMITER + "\n";
         // Call the generateResponse function to generate a response for each requirement
-        const response = await generateResponse(message);
-        console.log("check if there's a new line character", response);
+        var response = await generateResponse(message);
+        // remove the newline cahracters or blank lines in the beginning and end of the response
+        response = response.trim();
         // response = response.replace(/\n/g, '<br>');
         if (id === useResponseStore.getState().responseId){
             // set the first response as the default response
@@ -111,20 +98,15 @@ export async function buildSpace(currBlockId, dimensions, numResponses, prompt, 
         }
     });
     await Promise.all(responsePromises);
-    const endTime = Date.now();
-    console.log("Time to generate " + numResponses + " responses: " + (endTime - startTime) + "ms");
-    console.log(data);
+    // const endTime = Date.now();
+    // console.log("Time to generate " + numResponses + " responses: " + (endTime - startTime) + "ms");
 
     // store the responses in the local storage
-    console.log("put all data in blockID", currBlockId);
     DatabaseManager.putAllData(currBlockId, data);
     const setCurrBlockId = useCurrStore.getState().setCurrBlockId;
     setCurrBlockId(currBlockId);
-    console.log("currBlockId", currBlockId);
-    console.log("original maxBlockId", useCurrStore.getState().maxBlockId);
     // increment the maxBlockId by setting the maxBlockId to the maxBlockId + 1
     setMaxBlockId(maxBlockId + 1);
-    console.log("new maxBlockId", useCurrStore.getState().maxBlockId);
     return {"fail_count": fail_count, "total_count": total_count};
 }
 
@@ -217,13 +199,9 @@ export async function addLabelToSpace(dimensionMap, newLabel, numResponses, prom
  * labels: Label[] -> {dimensionId, name, type}[]
  */
 export async function addSimilarNodesToSpace(node, nodeMap, setNodeMap){
-    // generate a list of requirements for each dimension
-    // let {dimReqs, data} = genFilteredDimRequirements(dimensionMap, numResponses);
-    // let {dimReqs, data} = genLabelRequirements(dimensionMap, labels, numResponses);
-
     // generate a response for each requirement
     const startTime = Date.now();
-    // const data = {};
+    const data = {};
     // let data: ResponseData = {};
     const responsePromises = [0,1,2,3,4].map(async (i) => {
         // parse req to get id and requirements
@@ -286,37 +264,12 @@ async function generateResponse(message){
             throw new Error('No reader found');
         }
         const {value, done} = await reader.read();
-        // console.log("value", value)
-        // console.log(JSON.parse(value)["choices"][0]["text"]);
         total_count += 1; // increment total count
         if (value){
             return JSON.parse(value)["choices"][0]["text"];
         } else {
             throw new Error('No value found');
         }
-        /* 'gpt-3.5-turbo' / 'gpt-4' */
-        // const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        //     method: 'POST',
-        //     headers: {
-        //     Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
-        //     'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify({
-        //     model: 'gpt-4',
-        //     messages: [{role: "user", content: `${message}`}],
-        //     temperature: 0.7,
-        //     max_tokens: 7900,
-        //     top_p: 1,
-        //     frequency_penalty: 0.75,
-        //     presence_penalty: 0,
-        //     stream: false,
-        //     }),
-        // });
-        // const reader = response.body?.pipeThrough(new TextDecoderStream()).getReader();
-        // const {value, done} = await reader.read();
-        // total_count += 1; // increment total count
-        // console.log("value", value)
-        // return JSON.parse(value)["choices"][0]["message"]["content"];
     } catch (error) {
         fail_count += 1; // increment fail count
         total_count += 1; // increment total count
@@ -333,7 +286,6 @@ function genDimRequirements(dimensions, numResponses){
     // the ID of the requirement is the (index + 1) of the requirement in the list
     let dimReqs = [];
     let data = {};
-    console.log("numResponse", numResponses);
     for (let i = 0; i < numResponses; i++){
         let req = ""
         let datum = {};
@@ -350,12 +302,12 @@ function genDimRequirements(dimensions, numResponses){
             req += d + ": " + randVal + "\n";
             datum["Dimension"]["categorical"][d] = randVal;
         });
-        Object.entries(dimensions["ordinal"]).forEach(([d, v]) => {
-            // choose a random value from v
-            let randVal = v[Math.floor(Math.random() * v.length)];
-            req += d + ": " + randVal + "\n";
-            datum["Dimension"]["ordinal"][d] = randVal;
-        });
+        // Object.entries(dimensions["ordinal"]).forEach(([d, v]) => {
+        //     // choose a random value from v
+        //     let randVal = v[Math.floor(Math.random() * v.length)];
+        //     req += d + ": " + randVal + "\n";
+        //     datum["Dimension"]["ordinal"][d] = randVal;
+        // });
         dimReqs.push({"ID": datum["ID"], "Requirements": req});
         data[datum["ID"]] = datum;
     }
@@ -401,7 +353,7 @@ function genLabelDimRequirements(dimensionMap, label, numResponses){
     // return a list of requirements
     // **** IMPORTANT ****
     // the ID of the requirement is the (index + 1) of the requirement in the list
-    // let dimReqs: { ID: string; Requirements: string }[] = [];
+    let dimReqs = [];
     let data = {};
     // console.log("numResponse", numResponses);
     for (let i = 0; i < numResponses; i++){

@@ -31,7 +31,7 @@ export async function generateDimensions(query, context){
     "This is the context:\n" + background + "\n---end context ---\n\n" + query
     : query;
   let categoricalDims = await generateCategoricalDimensions(message, DatabaseManager.getDimensionSize(), 6);
-  let ordinalDims = await generateOrdinalDimensions(message, DatabaseManager.getDimensionSize());
+  // let ordinalDims = await generateOrdinalDimensions(message, DatabaseManager.getDimensionSize());
   let res = {}
   
   for (let i = 0; i < 5; i++){
@@ -45,31 +45,31 @@ export async function generateDimensions(query, context){
     categoricalDims = await generateCategoricalDimensions(message, DatabaseManager.getDimensionSize(), 6)
   }
 
-  for (let i = 0; i < 5; i++){
-    total += 1;
-    if (validateFormatForDimensions(ordinalDims, false)) {
-        // add ordinal dimensions to the categorical dimensions
-        // Object.entries(JSON.parse(ordinalDims)).forEach(([key, value]) => {
-        //     res["categorical"][key] = value;
-        // });
-        // break
-        res["ordinal"] = JSON.parse(ordinalDims);
-        break
-    };
-    fail += 1;
-    ordinalDims = await generateOrdinalDimensions(message, DatabaseManager.getDimensionSize());
-  }
+  // for (let i = 0; i < 5; i++){
+  //   total += 1;
+  //   if (validateFormatForDimensions(ordinalDims, false)) {
+  //       // add ordinal dimensions to the categorical dimensions
+  //       // Object.entries(JSON.parse(ordinalDims)).forEach(([key, value]) => {
+  //       //     res["categorical"][key] = value;
+  //       // });
+  //       // break
+  //       res["ordinal"] = JSON.parse(ordinalDims);
+  //       break
+  //   };
+  //   fail += 1;
+  //   ordinalDims = await generateOrdinalDimensions(message, DatabaseManager.getDimensionSize());
+  // }
   if (res){
-    const end = new Date().getTime();
-    console.log("Time to generate dimensions: ", end - start, "ms");
-    console.log("Failed to generate dimensions: ", fail, "out of", total);
+    // const end = new Date().getTime();
+    // console.log("Time to generate dimensions: ", end - start, "ms");
+    // console.log("Failed to generate dimensions: ", fail, "out of", total);
     return res;
   }
-  const end = new Date().getTime();
-  console.log("Time to generate dimensions: ", end - start, "ms");
-  console.log("Failed to generate dimensions: ", fail, "out of", total);
+  // const end = new Date().getTime();
+  // console.log("Time to generate dimensions: ", end - start, "ms");
+  // console.log("Failed to generate dimensions: ", fail, "out of", total);
   // did not get a valid response after 5 tries
-  console.log("failed to get a valid response")
+  console.log("[Error]","failed to get a valid response")
   return { "categorical": {},  "ordinal": {} };
 }
 
@@ -77,7 +77,7 @@ export async function generateCategoricalDimensions(prompt, catNum, valNum, temp
     const message = nominalDimensionDef + `list ${catNum} nominal dimensions and associated ${valNum} possible values
      on which we can categorize and assess the content for the prompt: ${prompt}
     ####
-    You MUST answer in the following JSON object format, wrapped in curly braces. Replace all strings with <...>. There must be ${catNum} items in the JSON object:
+    You MUST answer in the following JSON object format, wrapped in curly braces. There must be ${catNum} items in the JSON object:
     {"<dimension name #1>": [<${valNum} values for this dimension>],..., "<dimension name #${catNum}>" : [<${valNum} values for this dimension>]}
     `
 
@@ -279,9 +279,7 @@ export async function getKeyTextBasedOnDimension(kvPairs, text){
 export function validateFormatForDimensions(response: string, isNumerical: boolean){
   try {
       // check if the response is in the JSON format
-      const result = JSON.parse(response);
-      console.log("result format",result);
-      return true
+      return JSON.parse(response) ? true : false;
   }
   catch (e) {
       console.log(e, response);

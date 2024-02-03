@@ -82,7 +82,6 @@ export default function AiBlock({data, api, block}) {
     }, [currBlockId]);
 
     useEffect(() => {
-        console.log("isEdited: " + isEdited);
         if (isEdited) {
             setBackgroundColor('#f8f7fa59');
         } 

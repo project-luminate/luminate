@@ -33,9 +33,7 @@ export const ScatterPanel = ({updateNodePositions, camera, setCamera}) => {
 
   useEffect(() => {
     const dims = DatabaseManager.getAllDimensions(currBlockId);
-    console.log('d', dims);
     if (dims === undefined) {
-      console.log("undefined dimensions");
       return;
     }
     setDimensionMap(dims);
@@ -43,7 +41,6 @@ export const ScatterPanel = ({updateNodePositions, camera, setCamera}) => {
 
   useEffect(() => {
     if (query === '') {
-      console.log('query is empty');
       setKeywordNodes(new Set());
       return;
     }
@@ -51,32 +48,6 @@ export const ScatterPanel = ({updateNodePositions, camera, setCamera}) => {
 
   const handleInputChange = (e) => {
     setQuery(e.target.value);
-  }
-
-
-  interface Item {
-    item: {
-        ID: number;
-        Dimension: {
-          categorical: Record<string, any>; 
-          ordinal: Record<string, any>;
-          numerical: Record<string, any>;  
-        };
-        IsMyFav: boolean;
-        Keywords: string[];
-        Prompt: string;
-        Result: string;
-        Structure: string;
-        Summary: string;
-        Title: string;
-        index: number;
-        vx: number;
-        vy: number;
-        x: number;
-        y: number;
-      }
-    refIndex: number;
-    score: number; 
   }
 
   // fuzzy search
@@ -122,7 +93,6 @@ export const ScatterPanel = ({updateNodePositions, camera, setCamera}) => {
   useEffect(() => {
     function handleClickOutside(event) {
       if (showFullRow && scatterPanelRef.current &&!(scatterPanelRef.current as any)?.contains(event.target)) {
-        console.log('click outside');
         toggleShowFullRow();
       }
     }
