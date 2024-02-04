@@ -1,0 +1,63 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Koulen&family=Lato&family=Nunito&family=Playfair+Display:ital@1&family=Prata&family=Raleway:ital,wght@1,100&family=Roboto&family=Roboto+Condensed&family=Teko&display=swap');
+@import "bootstrap/scss/bootstrap";
+
+$position-values: (
+    0: 0,
+    50: 50%,
+    100: 100%,
+    200: 200%
+);
+
+html, body {
+	height: 100%;
+  
+}
+
+/* GLOBAL ROOT COMPONENTS */
+#my-spaceviz{
+  flex-grow: 1;
+  height: calc(100vh - 96px);
+}
+
+#text-editor-container {
+  height: calc(100vh - 96px);
+  max-height: calc(100vh - 96px);
+  width: 30%;
+  padding: 0 20px;
+  background-color: #fcfcfc;
+  overflow-y: scroll;
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+}
+
+/* ---------------------- */
+.container-fluid {
+  width: 100vw;
+  display: flex;
+  justify-content: stretch;
+}
+
+.navbar {
+  border: 2px solid #ebeef0;
+  border-radius: 10px;
+  padding: 20px;
+  background-color: #fcfcfc;
+}
+
+/* ********* TEXT EDITOR ********* */
+#text-editor{
+  margin-top: 30px !important;
+}
+
+#my-dimension-panel{
+  width: 100%;
+  margin-bottom: 5px;
+}
+
+#app-bar{
+  width: 100%;
+}
+
+.material-symbols-outlined {
+  font-size: 16px;
+}
