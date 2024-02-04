@@ -1,6 +1,7 @@
 import useEditorStore from "../store/use-editor-store";
 import DatabaseManager from "../db/database-manager";
 import { nominalDimensionDef, ordinalDimensionDef } from "./prompts";
+import * as bootstrap from 'bootstrap';
 import { getEnvVal } from "./util";
 
 const MAX_TOKEN_BIG = 1000;
@@ -36,7 +37,13 @@ export async function generateDimensions(query, context){
   
   for (let i = 0; i < 5; i++){
     total += 1;
-    if (validateFormatForDimensions(categoricalDims, false)) {
+    if (i === 4){
+      if (validateFormatForDimensions(categoricalDims, false, true)) {
+        res["categorical"] = JSON.parse(categoricalDims);
+        break
+      }
+    };
+    if (validateFormatForDimensions(categoricalDims, false, false)) {
         res["categorical"] = JSON.parse(categoricalDims);
         break
     };
@@ -224,6 +231,44 @@ export async function getRelatedTextBasedOnDimension(dimension, val, text){
 }
 
 
+/*validate the format of the response
+  return true if the response is in the correct format
+  return false if the response is not in the correct format
+*/
+export function validateFormatForDimensions(response: string, isNumerical: boolean, isLast: boolean){
+  try {
+      // check if the response is in the JSON format
+      const result =  JSON.parse(response);
+      // check if the number of dimensions is correct
+      if (Object.keys(result).length !== DatabaseManager.getDimensionSize()){
+          console.log("[Error] wrong number of dimensions", result);
+          if (isLast){
+            var toast = new bootstrap.Toast(document.getElementById('error-toast'));
+            const err = document.getElementById('error-toast-text');
+            if (err) {
+              err.textContent = "Supposed to have " + DatabaseManager.getDimensionSize() + " dimensions. Yet, got " + Object.keys(result).length + " dimensions";
+              toast.show();
+            }
+          }
+          return false;
+      }
+      return true;
+      
+  }
+  catch (e) {
+      console.log("[Error] " + e, response);
+      if (isLast){
+        var toast = new bootstrap.Toast(document.getElementById('error-toast'));
+        const err = document.getElementById('error-toast-text');
+        if (err) {
+          err.textContent = "Encountered errors when parsing the JSON response from OpenAI";
+          toast.show();
+        }
+      }
+      return false
+  }
+}
+
 
 export async function getKeyTextBasedOnDimension(kvPairs, text){
   // given several dimensions, return 3 sentences that reflect the dimension values
@@ -272,20 +317,6 @@ export async function getKeyTextBasedOnDimension(kvPairs, text){
   return result;
 }
 
-/*validate the format of the response
-  return true if the response is in the correct format
-  return false if the response is not in the correct format
-*/
-export function validateFormatForDimensions(response: string, isNumerical: boolean){
-  try {
-      // check if the response is in the JSON format
-      return JSON.parse(response) ? true : false;
-  }
-  catch (e) {
-      console.log(e, response);
-      return false
-  }
-}
 
 export function validateFormatForHighlight(response: string){
   // validate the format of the response

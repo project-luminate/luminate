@@ -99,20 +99,6 @@ export const hexAvgCatNum = (c, n) => {
     return rgbToHex({red: interpolatedRgb[0], green: interpolatedRgb[1], blue: interpolatedRgb[2]});
 }
 
-// export const hexAvgTwoNum = (a, b, aT, bT) => {
-//     let rgbA = hexToRgb(a);
-//     let A = [rgbA.red, rgbA.green, rgbA.blue];
-
-//     let rgbB = hexToRgb(b);
-//     let B = [rgbB.red, rgbB.green, rgbB.blue];
-
-//     let cX = colLerp(A, B, aT);
-//     let cY = colLerp(A, B, bT);
-    
-//     // Assuming you have a colAvg function that averages two RGB arrays
-//     let averageRgb = colAvg(cX, cY);
-//     return rgbArrayToHex(averageRgb);
-// }
 export const hexAvgTwoNum = (a, b, aT, bT) => {
     const gray = [224, 224, 224];
 

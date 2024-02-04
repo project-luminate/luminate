@@ -495,10 +495,9 @@ function validateFormatForSummarization(response){
  */
 export async function addNewDimension(prompt, dimensionName, dimensionMap, setDimensionMap, nodeMap, setNodeMap) {
     let newDimResponse = await createLabelsFromDimension(prompt, dimensionName);
-    console.log("newDimension", newDimResponse);
     let newDimension = null;
     for (let i = 0; i < 5; i++){
-        if (validateFormatForDimensions(newDimResponse, false)) {
+        if (validateFormatForDimensions(newDimResponse, false, false)) {
             newDimension = JSON.parse(newDimResponse);
             break
         };
