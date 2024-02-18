@@ -67,15 +67,8 @@ export async function generateDimensions(query, context){
   //   ordinalDims = await generateOrdinalDimensions(message, DatabaseManager.getDimensionSize());
   // }
   if (res){
-    // const end = new Date().getTime();
-    // console.log("Time to generate dimensions: ", end - start, "ms");
-    // console.log("Failed to generate dimensions: ", fail, "out of", total);
     return res;
   }
-  // const end = new Date().getTime();
-  // console.log("Time to generate dimensions: ", end - start, "ms");
-  // console.log("Failed to generate dimensions: ", fail, "out of", total);
-  // did not get a valid response after 5 tries
   console.log("[Error]","failed to get a valid response")
   return { "categorical": {},  "ordinal": {} };
 }
