@@ -17,7 +17,7 @@ export default class DatabaseManager {
         DatabaseManager.storePair(DATA, {"0":0});
         DatabaseManager.storePair(BLOCK, {"0":0})
         DatabaseManager.storePair(BATCH, 40);
-        DatabaseManager.storePair(NUM_DIM, 6);
+        DatabaseManager.storePair(NUM_DIM, 3);
     }
 
     // store the data into the local storage

@@ -70,7 +70,14 @@ const initEditor = () => {
     placeholder: 'Click here to write down the title',
     // defaultBlock: 'AiTool',
     data: {
-      blocks: []
+      blocks: [
+        {
+          type: 'header',
+          data: {
+            text: 'Sunset'
+          }
+        }
+      ]
     },
   });
   ejInstance.current = editor;
