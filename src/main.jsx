@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
-import DatabaseManager from "./db/database-manager";
+import DatabaseManager from "./db/database-manager.jsx";
 import './main.scss'
 
 // store data into local storage
