@@ -246,6 +246,8 @@ export function validateFormatForDimensions(response: string, isNumerical: boole
       // check if the response is in the JSON format
       const result =  JSON.parse(response);
       // check if the number of dimensions is correct
+      console.log("result length", Object.keys(result).length);
+      console.log("dimension size", DatabaseManager.getDimensionSize());
       if (Object.keys(result).length !== DatabaseManager.getDimensionSize()){
           console.log("[Error] wrong number of dimensions", result);
           if (isLast){
