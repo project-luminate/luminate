@@ -76,20 +76,20 @@ export default function AiForm({responseHandler, selectedContent}) {
                 toast.show();
 
             });
-
-            // Object.entries(res["ordinal"]).forEach(([d, v]) => {
-            //     const data ={
-            //     "name": d,
-            //     "values": v,
-            //     "type": "ordinal"
-            //     }
-            //     DatabaseManager.postDimension(currBlockId, d, data);
-            //     addToast(d);
-            //     // show a toast to indicate that the dimensions are generated
-            //     let toast = new bootstrap.Toast(document.getElementById('fav-toast'+d));
-            //     document.getElementById(`toast-text-${d}`).textContent = "New dimension: " + d;
-            //     toast.show();
-            // });
+            /* comment out when you do not want */
+            Object.entries(res["ordinal"]).forEach(([d, v]) => {
+                const data ={
+                "name": d,
+                "values": v,
+                "type": "ordinal"
+                }
+                DatabaseManager.postDimension(currBlockId, d, data);
+                addToast(d);
+                // show a toast to indicate that the dimensions are generated
+                let toast = new bootstrap.Toast(document.getElementById('fav-toast'+d));
+                document.getElementById(`toast-text-${d}`).textContent = "New dimension: " + d;
+                toast.show();
+            });
             setGenerationState("response");
         }
         catch (error) {

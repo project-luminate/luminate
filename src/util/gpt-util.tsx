@@ -32,7 +32,7 @@ export async function generateDimensions(query, context){
     "This is the context:\n" + background + "\n---end context ---\n\n" + query
     : query;
   let categoricalDims = await generateCategoricalDimensions(message, DatabaseManager.getDimensionSize(), 6);
-  // let ordinalDims = await generateOrdinalDimensions(message, DatabaseManager.getDimensionSize());
+  let ordinalDims = await generateOrdinalDimensions(message, DatabaseManager.getDimensionSize());
   let res = {}
   
   for (let i = 0; i < 5; i++){
@@ -52,20 +52,26 @@ export async function generateDimensions(query, context){
     categoricalDims = await generateCategoricalDimensions(message, DatabaseManager.getDimensionSize(), 6)
   }
 
-  // for (let i = 0; i < 5; i++){
-  //   total += 1;
-  //   if (validateFormatForDimensions(ordinalDims, false)) {
-  //       // add ordinal dimensions to the categorical dimensions
-  //       // Object.entries(JSON.parse(ordinalDims)).forEach(([key, value]) => {
-  //       //     res["categorical"][key] = value;
-  //       // });
-  //       // break
-  //       res["ordinal"] = JSON.parse(ordinalDims);
-  //       break
-  //   };
-  //   fail += 1;
-  //   ordinalDims = await generateOrdinalDimensions(message, DatabaseManager.getDimensionSize());
-  // }
+  for (let i = 0; i < 5; i++){
+    total += 1;
+    if (i === 4){
+      if (validateFormatForDimensions(ordinalDims, false, true)) {
+        res["ordinal"] = JSON.parse(ordinalDims);
+        break
+      }
+    };
+    if (validateFormatForDimensions(ordinalDims, false, false)) {
+        // add ordinal dimensions to the categorical dimensions
+        // Object.entries(JSON.parse(ordinalDims)).forEach(([key, value]) => {
+        //     res["categorical"][key] = value;
+        // });
+        // break
+        res["ordinal"] = JSON.parse(ordinalDims);
+        break
+    };
+    fail += 1;
+    ordinalDims = await generateOrdinalDimensions(message, DatabaseManager.getDimensionSize());
+  }
   if (res){
     // const end = new Date().getTime();
     // console.log("Time to generate dimensions: ", end - start, "ms");

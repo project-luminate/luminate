@@ -302,12 +302,13 @@ function genDimRequirements(dimensions, numResponses){
             req += d + ": " + randVal + "\n";
             datum["Dimension"]["categorical"][d] = randVal;
         });
-        // Object.entries(dimensions["ordinal"]).forEach(([d, v]) => {
-        //     // choose a random value from v
-        //     let randVal = v[Math.floor(Math.random() * v.length)];
-        //     req += d + ": " + randVal + "\n";
-        //     datum["Dimension"]["ordinal"][d] = randVal;
-        // });
+        /* Comemnt out this part if you don't want ordinal dimension */
+        Object.entries(dimensions["ordinal"]).forEach(([d, v]) => {
+            // choose a random value from v
+            let randVal = v[Math.floor(Math.random() * v.length)];
+            req += d + ": " + randVal + "\n";
+            datum["Dimension"]["ordinal"][d] = randVal;
+        });
         dimReqs.push({"ID": datum["ID"], "Requirements": req});
         data[datum["ID"]] = datum;
     }
@@ -483,6 +484,33 @@ function validateFormatForSummarization(response){
     }
   }
 
+
+/*validate the format of the response
+  return true if the response is in the correct format
+  return false if the response is not in the correct format
+*/
+export function validateFormatForAddingDimensions(response){
+    try {
+        // check if the response is in the JSON format
+        const result =  JSON.parse(response);
+        // check if the number of dimensions is correct
+        return true;
+        
+    }
+    catch (e) {
+        console.log("[Error] " + e, response);
+        if (isLast){
+          var toast = new bootstrap.Toast(document.getElementById('error-toast'));
+          const err = document.getElementById('error-toast-text');
+          if (err) {
+            err.textContent = "Encountered errors when parsing the JSON response from OpenAI";
+            toast.show();
+          }
+        }
+        return false
+    }
+  }
+
 /**
  * Given the current dimensions, generate a brand new dimension and its labels.
  * For each response, select a random value of the dimension.
@@ -497,7 +525,7 @@ export async function addNewDimension(prompt, dimensionName, dimensionMap, setDi
     let newDimResponse = await createLabelsFromDimension(prompt, dimensionName);
     let newDimension = null;
     for (let i = 0; i < 5; i++){
-        if (validateFormatForDimensions(newDimResponse, false, false)) {
+        if (validateFormatForAddingDimensions(newDimResponse)) {
             newDimension = JSON.parse(newDimResponse);
             break
         };
@@ -507,7 +535,7 @@ export async function addNewDimension(prompt, dimensionName, dimensionMap, setDi
     if (!newDimension) {
         console.log('failed add new dimension. Please try again.');
         var toast = new bootstrap.Toast(document.getElementById('error-toast'));
-        var msg = document.getElementById('errortoast-text');
+        var msg = document.getElementById('error-toast-text');
         if (msg) {
             msg.textContent = "Failed add a new dimension. Please try again.";
             toast.show();
@@ -625,7 +653,7 @@ async function createLabelsFromDimension(prompt, dimensionName){
     ####
     answer in the following JSON format: 
     {
-        "${dimensionName}": ["<label 1>", "<label 2>", "<label 3>",...."<label 6>"]
+        "${dimensionName}": ["<label 1>", "<label 2>", "<label 3>"]
     }`;
 
     const response = await fetch('https://api.openai.com/v1/completions', {
