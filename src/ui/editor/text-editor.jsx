@@ -71,12 +71,12 @@ const initEditor = () => {
     // defaultBlock: 'AiTool',
     data: {
       blocks: [
-        {
-          type: 'header',
-          data: {
-            text: 'Sunset'
-          }
-        }
+        // {
+        //   type: 'header',
+        //   data: {
+        //     text: 'Sunset'
+        //   }
+        // }
       ]
     },
   });

@@ -16,7 +16,7 @@ export default class DatabaseManager {
         DatabaseManager.storePair(DIM, {"0": 0});
         DatabaseManager.storePair(DATA, {"0":0});
         DatabaseManager.storePair(BLOCK, {"0":0})
-        DatabaseManager.storePair(BATCH, 40);
+        DatabaseManager.storePair(BATCH, 20);
         DatabaseManager.storePair(NUM_DIM, 3);
     }
 
