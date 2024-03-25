@@ -248,18 +248,18 @@ export function validateFormatForDimensions(response: string, isNumerical: boole
       // check if the number of dimensions is correct
       console.log("result length", Object.keys(result).length);
       console.log("dimension size", DatabaseManager.getDimensionSize());
-      if (Object.keys(result).length !== DatabaseManager.getDimensionSize()){
-          console.log("[Error] wrong number of dimensions", result);
-          if (isLast){
-            var toast = new bootstrap.Toast(document.getElementById('error-toast'));
-            const err = document.getElementById('error-toast-text');
-            if (err) {
-              err.textContent = "Supposed to have " + DatabaseManager.getDimensionSize() + " dimensions. Yet, got " + Object.keys(result).length + " dimensions";
-              toast.show();
-            }
-          }
-          return false;
-      }
+      // if (Object.keys(result).length !== DatabaseManager.getDimensionSize()){
+      //     console.log("[Error] wrong number of dimensions", result);
+      //     if (isLast){
+      //       var toast = new bootstrap.Toast(document.getElementById('error-toast'));
+      //       const err = document.getElementById('error-toast-text');
+      //       if (err) {
+      //         err.textContent = "Supposed to have " + DatabaseManager.getDimensionSize() + " dimensions. Yet, got " + Object.keys(result).length + " dimensions";
+      //         toast.show();
+      //       }
+      //     }
+      //     return false;
+      // }
       return true;
       
   }

@@ -7,7 +7,7 @@ import { styled } from '@mui/system';
 import { Dimension } from '../scatter-space/scatter-space.helper';
 import useDimStore from '../../../store/use-dim-store';
 import useCurrStore from '../../../store/use-curr-store';
-import * as bootstrap from 'bootstrap';
+import { ClassNames } from '@emotion/react';
 
 export default function DimensionMenu({position, label}) {
     const {dimensionMap, setSelectedLabelIds} = useCurrStore();
@@ -37,7 +37,7 @@ export default function DimensionMenu({position, label}) {
 
   return (
     <Dropdown>
-      <TriggerButton>{label.name ? label.name: 'Select a Dimension'}</TriggerButton>
+      <TriggerButton id="x-trigger">{label.name ? label.name: 'Select a Dimension'}</TriggerButton>
       <Menu slots={{ listbox: StyledListbox }}
       style={{ zIndex: 9999 }}
       >

@@ -137,7 +137,7 @@ export const ScatterPanel = ({updateNodePositions, camera, setCamera}) => {
       {/* Filter Labels */}
       <div className='menu'>
         {
-          <IconButton type='button' aria-label='hide-bar' onClick={() => {
+          <IconButton id="collapse-button" type='button' aria-label='hide-bar' onClick={() => {
             displayState('none') === 'none' ? updateToggleFilterState('none' ) :updateToggleFilterState('editor')
           }}
           style={{
@@ -153,6 +153,7 @@ export const ScatterPanel = ({updateNodePositions, camera, setCamera}) => {
       {/* Keyword Search */}
       <form
         className="searchbar"
+        id="searchbar"
         style={{
           height: '100%',
           display: 'flex',
@@ -173,7 +174,7 @@ export const ScatterPanel = ({updateNodePositions, camera, setCamera}) => {
       </form>
 
       {/* Toggle */}
-      <div style={{height: '44px'}}>
+      <div style={{height: '44px'}} id="fav-button">
         <Button className="panel-item" style={{
           height: '44px',
           background: myFav ? '#1b1b1b99' : '#ffffff99',
@@ -191,7 +192,7 @@ export const ScatterPanel = ({updateNodePositions, camera, setCamera}) => {
       </div>
 
       {/* Filter Dimensions & Labels */}
-      <div className="filter-dims-labels">
+      <div className="filter-dims-labels" id="filter-dims">
         <div className="fab-container-left">
             <Fab size="small" aria-label="add" className="fab" 
               sx ={{
