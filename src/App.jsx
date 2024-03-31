@@ -4,8 +4,17 @@ import { ToastContainer } from './ui/toasts';
 import { WelcomeModal } from './ui/welcome-modal';
 import Editor from './ui/editor/text-editor';
 import AiForm from './ui/editor/ai-panel/ai-form';
+import React, { useEffect } from 'react';
+import { startTutorial } from './util/util';
 
 function App() {
+  useEffect(() => {
+    const isFirstTime = localStorage.getItem('firstTime') === null || localStorage.getItem('firstTime') === 'true';
+    if (isFirstTime) {
+      startTutorial();
+      localStorage.setItem('firstTime', 'false');
+    }
+  }, []);
   return (
     <>
     {import.meta.env.VITE_OPENAI_API_KEY ? (
