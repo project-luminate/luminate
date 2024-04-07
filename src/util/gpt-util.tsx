@@ -32,7 +32,15 @@ export async function generateDimensions(query, context){
     "This is the context:\n" + background + "\n---end context ---\n\n" + query
     : query;
   let categoricalDims = await generateCategoricalDimensions(message, DatabaseManager.getDimensionSize(), 6);
+  if (categoricalDims === null) {
+    console.error("Failed to generate categorical dimensions.");
+    return { "categorical": {},  "ordinal": {} , "status": 1};
+}
   let ordinalDims = await generateOrdinalDimensions(message, DatabaseManager.getDimensionSize());
+  if (ordinalDims === null) {
+    console.error("Failed to generate ordinal dimensions.");
+    return { "categorical": {},  "ordinal": {} , "status": 1};
+}
   let res = {}
   
   for (let i = 0; i < 5; i++){
@@ -76,14 +84,15 @@ export async function generateDimensions(query, context){
     // const end = new Date().getTime();
     // console.log("Time to generate dimensions: ", end - start, "ms");
     // console.log("Failed to generate dimensions: ", fail, "out of", total);
-    return res;
+    res["status"] = 0;
+    return res
   }
   // const end = new Date().getTime();
   // console.log("Time to generate dimensions: ", end - start, "ms");
   // console.log("Failed to generate dimensions: ", fail, "out of", total);
   // did not get a valid response after 5 tries
   console.log("[Error]","failed to get a valid response")
-  return { "categorical": {},  "ordinal": {} };
+  return { "categorical": {},  "ordinal": {} , "status": 2};
 }
 
 export async function generateCategoricalDimensions(prompt, catNum, valNum, temperature=TEMPERATURE){
@@ -94,27 +103,39 @@ export async function generateCategoricalDimensions(prompt, catNum, valNum, temp
     {"<dimension name #1>": [<${valNum} values for this dimension>],..., "<dimension name #${catNum}>" : [<${valNum} values for this dimension>]}
     `
 
-    const response = await fetch('https://api.openai.com/v1/completions', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${getEnvVal('VITE_OPENAI_API_KEY')}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: MODEL,
-          prompt: `${message}`,
-          temperature: temperature,
-          max_tokens: MAX_TOKEN_BIG,
-          top_p: TOP_P,
-          frequency_penalty: 0.75,
-          presence_penalty: 0,
-          stream: false
-        }),
-      });
-    const reader : any = response.body?.pipeThrough(new TextDecoderStream()).getReader();
-    const {value, done} = await reader.read();
-    console.log("categorical dimensions", JSON.parse(value)["choices"][0]["text"]);
-    return JSON.parse(value)["choices"][0]["text"];
+    try {
+      const response = await fetch('https://api.openai.com/v1/completions', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${getEnvVal('VITE_OPENAI_API_KEY')}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: MODEL,
+            prompt: `${message}`,
+            temperature: temperature,
+            max_tokens: MAX_TOKEN_BIG,
+            top_p: TOP_P,
+            frequency_penalty: 0.75,
+            presence_penalty: 0,
+            stream: false
+          }),
+        });
+      if (!response.ok) {
+        throw new Error(`[Error] HTTP error! status: ${response.status}`);
+      }
+      const reader : any = response.body?.pipeThrough(new TextDecoderStream()).getReader();
+      const {value, done} = await reader.read();
+      console.log("categorical dimensions", JSON.parse(value)["choices"][0]["text"]);
+      return JSON.parse(value)["choices"][0]["text"];
+
+    } catch (e) {
+      let toast = new bootstrap.Toast(document.getElementById('error-toast'));
+      document.getElementById('error-toast-text').textContent = "API Key Error";
+      toast.show();
+      console.log(e);
+      return null;
+    }
 }
 
 export async function generateOrdinalDimensions(prompt, catNum){
@@ -125,28 +146,35 @@ export async function generateOrdinalDimensions(prompt, catNum){
   {
       "<dimension name>": ["<lowest degree>", "least", "moderate", "most", "<highest degree>"]
   }`
-
-  const response = await fetch('https://api.openai.com/v1/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${getEnvVal('VITE_OPENAI_API_KEY')}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        prompt: `${message}`,
-        temperature: TEMPERATURE,
-        max_tokens: MAX_TOKEN_BIG,
-        top_p: TOP_P,
-        frequency_penalty: 0.75,
-        presence_penalty: 0,
-        stream: false
-      }),
-    });
-  const reader : any = response.body?.pipeThrough(new TextDecoderStream()).getReader();
-  const {value, done} = await reader.read();
-  console.log("ordinal dimensions", JSON.parse(value)["choices"][0]["text"]);
-  return JSON.parse(value)["choices"][0]["text"];
+  try {
+    const response = await fetch('https://api.openai.com/v1/completions', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${getEnvVal('VITE_OPENAI_API_KEY')}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: MODEL,
+          prompt: `${message}`,
+          temperature: TEMPERATURE,
+          max_tokens: MAX_TOKEN_BIG,
+          top_p: TOP_P,
+          frequency_penalty: 0.75,
+          presence_penalty: 0,
+          stream: false
+        }),
+      });
+    if (!response.ok) {
+      throw new Error(`[Error] HTTP error! status: ${response.status}`);
+    }
+    const reader : any = response.body?.pipeThrough(new TextDecoderStream()).getReader();
+    const {value, done} = await reader.read();
+    console.log("ordinal dimensions", JSON.parse(value)["choices"][0]["text"]);
+    return JSON.parse(value)["choices"][0]["text"];
+  } catch (e) {
+    console.log(e);
+    return null;
+  }
 }
 
 export async function generateNumericalDimensions(prompt, numNum){

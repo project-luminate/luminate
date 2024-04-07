@@ -5,11 +5,11 @@ import React, { useState } from 'react';
 import { Modal, Box, TextField} from '@mui/material';
 import { saveEnvVal } from '../util/util';
 
-export function WelcomeModal() {
+export function WelcomeModal( {updateApiKey}){
   const [open, setOpen] = useState(true);
 
   const handleClose = (event, reason) => {
-    if (reason !== 'backdropClick') {
+    if (reason !== 'backdropClick' && reason !== 'escapeKeyDown') {
       setOpen(false);
     }
   }
@@ -21,10 +21,11 @@ export function WelcomeModal() {
     // save data into env variables
     saveEnvVal('VITE_OPENAI_API_KEY', apiToken as string);
     handleClose(event,reason);
+    updateApiKey(apiToken as string);
   };
 
   return (
-    <div>
+    <div className="welcome-modal">
       <Modal
         open={open}
         onClose={handleClose}
@@ -65,8 +66,9 @@ export function WelcomeModal() {
               You can find your Secret OpenAI API key in your <a href="https://platform.openai.com/account/api-keys" target="_blank">User Settings</a>
             </p>
             <p className='note'>
-              Each prompt will results in around 80 requests and may cost upto $0.8 USD.
-              You can find detailed information about the cost in  <a href="https://openai.com/pricing" target="_blank">Pricing</a>
+              Generate one response in the design space costs about $0.007. By default, Luminate will generate 20 responses at a time which costs about $0.14.
+              You can modify the batch size by opening Settings <img src="settings-menu.png" alt="Settings" style={{width: '30px', height: '30px'}}/> in the top right corner.
+              Detailed information about the cost can be found in  <a href="https://openai.com/pricing" target="_blank">Pricing</a>
             </p>
             <p className='note'>
               Luminate will not save your OpenAI API key neither in a cookie, localStorage, nor server. 

@@ -51,7 +51,7 @@ export const startTutorial = () => {
     tooltipClass: 'tutorialTooltip',
     steps: [
       {
-        title: 'Luminate Tutorial',
+        title: 'Luminate Tutorial <img src="luminate-logo.png" style="width:30px; height:30px;"/>',
         intro: 'This is a walkthrough to get you acquainted with each component of Luminate and help you understand the system.'
       },
       {
@@ -103,13 +103,40 @@ export const startTutorial = () => {
         intro: "You can select a dimension to arrange the responses in the exploration view based on the values in that dimension."
       },
       {
-        title: 'Luminate Tutorial',
+        title:'Menu',
+        intro: ' At the top right corner, you can see 4 icon buttons.\
+                <ul style=\"list-style-type: none; padding-left: 0; margin-top: 10px;\">\
+                  <li style=\"display: flex; align-items: center; gap: 10px; margin-bottom: 10px;\">\
+                      <img src=\"tutorial-menu.png\" alt=\"Tutorial\" style=\"width: 30px; height: 30px;\">\
+                      <strong>Tutorial:</strong> You can watch the tutorial of Luminate.\
+                  </li>\
+                  <li style=\"display: flex; align-items: center; gap: 10px; margin-bottom: 10px;\">\
+                      <img src=\"contact-menu.png\" alt=\"Settings\" style=\"width: 30px; height: auto;\">\
+                      <strong>Contact:</strong> You can contact researchers via email.\
+                  </li>\
+                  <li style="display: flex; flex-direction: column; align-items: center; gap: 20px; margin-bottom: 10px;">\
+                      <div style="display: flex; width: 100%; gap: 10px;">\
+                          <img src="settings-menu.png" alt="Settings" style="width: 30px; height: 30px;">\
+                          <strong>Settings:</strong> You can enter your OpenAI API key and change the batch size and number of dimensions.\
+                          The default batch size is 20 and the number of dimensions is 3.\
+                      </div>\
+                      <img src="settings-input.png" alt="Semantic Zoom" style="width: auto; height: 350px; ">\
+                  </li>\
+                  <li style=\"display: flex; gap: 10px; margin-bottom: 10px;\">\
+                      <img src=\"about-menu.png\" alt=\"About\" style=\"width: 30px; height: 30px;\">\
+                      <strong>About:</strong> You can learn more about the research paper and the framework that Luminate instantiates.\
+                  </li>\
+              </ul>\
+        ',
+      },
+      {
+        title: 'Luminate Tutorial <img src="luminate-logo.png" style="width:30px; height:30px;"/>',
         intro: 'This is the end of the tutorial. You can also watch a 30s video demo video to get a better understanding of Luminate.\
         <video width="540px" height="360px" controls>\
           <source src="luminate-video-preview.mp4" type="video/mp4">\
           Your browser does not support the video tag.\
         </video>\
-        If you want to watch the tutorial again, click on the tutorial icon <img src="tutorial.png" style="width:30px; height:auto;"/>\
+        If you want to watch the tutorial again, click <img src="tutorial-menu.png" style="width:30px; height:auto;"/>\
         on the top right corner. Enjoy using Luminate!'
       },
     ]

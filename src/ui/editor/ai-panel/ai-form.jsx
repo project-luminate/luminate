@@ -58,7 +58,24 @@ export default function AiForm({responseHandler, selectedContent}) {
     // given a query, generate new categorical and numerical dimensions and the combination of the first response
     async function generateDimensions(query, currBlockId) {
         const res = await GPTUtil.generateDimensions(query, context);
-        // const dpInstance = new DimensionPanel();
+        // res status
+        // 0: success
+        // 1: failed to generate dimensions due to failed API call
+        // 2: failed to generate responses due to constant error in parsing API response
+        if (res.status === 1) {
+            console.log("[Error] failed to generate dimensions due to failed API call");
+            let toast = new bootstrap.Toast(document.getElementById('error-toast'));
+            document.getElementById('error-toast-text').textContent = "Failed to generate dimensions due to failed API call. Please make sure your API key is correct and try again.";
+            toast.show();
+            return {result: null, status: 1};
+        }
+        if (res.status === 2) {
+            console.log("[Error] failed to generate dimensions due to constant error in parsing API response");
+            let toast = new bootstrap.Toast(document.getElementById('error-toast'));
+            document.getElementById('error-toast-text').textContent = "Failed to generate dimensions due to constant error in parsing API response. Please try again.";
+            toast.show();
+            return {result: null, status: 1};
+        }
         try{
             Object.entries(res["categorical"]).forEach(([d, v]) => {
                 const data ={
@@ -95,14 +112,14 @@ export default function AiForm({responseHandler, selectedContent}) {
         catch (error) {
             console.log("[Error] error when creating the space", error);
             let toast = new bootstrap.Toast(document.getElementById('error-toast'));
-            document.getElementById('error-toast-text').textContent = "Failed to generate dimensions";
+            document.getElementById('error-toast-text').textContent = "Failed to generate dimensions due to error in parsing JSON. Please try again.";
             toast.show();
             // remove all dimensions from the database
             DatabaseManager.deleteAllDimensions(currBlockId);
-            return null;
+            return {result: null, status: 1};
         }
 
-        return res;
+        return {result: res, status: 0};
     }
 
     async function diversifyResponses(currBlockId, query, dims) {
@@ -143,11 +160,11 @@ export default function AiForm({responseHandler, selectedContent}) {
        
         // generate dimensions
         const dims = await generateDimensions(query, currBlockId);
-        if (dims === null) {
+        if (dims.status === 1) {
             setIsSubmitting(false);
             return;
         }
-        await diversifyResponses(currBlockId, query, dims); // generate new dimensions from the query
+        await diversifyResponses(currBlockId, query, dims.result); // generate new dimensions from the query
 
         // after generating the space, change the generation state to space
         setIsSubmitting(false);

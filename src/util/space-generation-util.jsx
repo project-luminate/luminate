@@ -49,64 +49,65 @@ async function editorBackgroundPrompt() {
     use the OpenAI API to generate a response 
 */
 export async function buildSpace(currBlockId, dimensions, numResponses, prompt, context){
-    // generate a list of requirements for each dimension
-    let {dimReqs, data} = genDimRequirements(dimensions, numResponses);
-    // get the context from the editor
-    const {api} = useEditorStore.getState();
-    // // get the block id of the last block
-    // const lastBlockId = api.blocks.getBlockByIndex(-1).id;
+    let { dimReqs, data } = genDimRequirements(dimensions, numResponses);
+    const { api } = useEditorStore.getState();
+    const { maxBlockId, setMaxBlockId } = useCurrStore.getState();
+    const { setSelectedResponse } = useSelectedStore.getState();
 
-    const {maxBlockId, setMaxBlockId, } = useCurrStore.getState();
-    const {selectedResponse, setSelectedResponse} = useSelectedStore.getState();
-    // generate a response for each requirement
-    const startTime = Date.now();
-    let responses = [];
-    const responsePromises = dimReqs.map(async (req, i) => {
-        // parse req to get id and requirements
-        const id = req["ID"];
-        const wordLimit = "Limit the response to 150 words.\n####\n"
-        const requirements = req["Requirements"];
-        const message = wordLimit + editorBackgroundPrompt() + "Prompt: " + prompt + "\n" + DELIMITER + "\n" + "Requirements: " + requirements + "\n" + DELIMITER + "\n";
-        // Call the generateResponse function to generate a response for each requirement
-        var response = await generateResponse(message);
-        // remove the newline cahracters or blank lines in the beginning and end of the response
-        response = response.trim();
-        // response = response.replace(/\n/g, '<br>');
-        if (id === useResponseStore.getState().responseId){
-            // set the first response as the default response
-            useResponseStore.getState().setResponse(response);
-            // print responseId
-            console.log("print in side the space", useResponseStore.getState().responseId)
-        }
-        // store the response in the data
-        // let data: ResponseData = {};
-        data[id]["Prompt"] = message;
-        data[id]["Context"] = context;
-        data[id]["Result"] = response;
-        const summary = await abstraction(response);
-        data[id]["Summary"] = summary["Summary"];
-        data[id]["Keywords"] = summary["Key Words"];
-        data[id]["Structure"] = summary["Structure"];
-        data[id]["Title"] = summary["Title"];
-        data[id]["IsMyFav"] = false;
-        if (id === firstId){
-            // set the first response as the default response
-            setSelectedResponse(currBlockId, data[id]);
-            console.log("print in side the space", selectedResponse)
-            // useResponseStore.getState().setResponse(response);
-            // useResponseStore.getState().setResponseId(id);
-        }
-    });
-    await Promise.all(responsePromises);
-    // const endTime = Date.now();
-    // console.log("Time to generate " + numResponses + " responses: " + (endTime - startTime) + "ms");
+    let fail_count = 0;
+    let total_count = dimReqs.length;
+    const processResponses = async (reqs) => {
+        return Promise.all(reqs.map(async (req) => {
+            try {
+                const id = req["ID"];
+                const wordLimit = "Limit the response to 150 words.\n####\n";
+                const requirements = req["Requirements"];
+                const message = `${wordLimit}${editorBackgroundPrompt()} Prompt: ${prompt}\n####\nRequirements: ${requirements}`;
+                const response = await generateResponse(message);
+                const trimmedResponse = response.trim();
+                const summary = await abstraction(trimmedResponse);
 
-    // store the responses in the local storage
+                if (id === useResponseStore.getState().responseId){
+                    useResponseStore.getState().setResponse(response);
+                }
+
+                // Update the data object for each requirement
+                data[id] = {
+                    ...data[id],
+                    Prompt: message,
+                    Context: context,
+                    Result: trimmedResponse,
+                    IsMyFav: false,
+                    Summary: summary["Summary"],
+                    Keywords: summary["Key Words"],
+                    Structure: summary["Structure"],
+                    Title: summary["Title"],
+                };
+                // Handle selected response logic as per your application's needs
+                if (id === firstId) {
+                    setSelectedResponse(currBlockId, data[id]);
+                }
+                return data[id];
+            } catch (error) {
+                console.error(`Error processing response for ID ${req["ID"]}:`, error);
+                fail_count++;
+                return null; // or handle as appropriate for your error management
+            }
+        }));
+    };
+
+    const batchSize = 20;
+    for (let i = 0; i < dimReqs.length; i += batchSize) {
+        const batch = dimReqs.slice(i, i + batchSize);
+        await processResponses(batch);
+    }
+
+    // Store the responses and update state
     DatabaseManager.putAllData(currBlockId, data);
     const setCurrBlockId = useCurrStore.getState().setCurrBlockId;
     setCurrBlockId(currBlockId);
-    // increment the maxBlockId by setting the maxBlockId to the maxBlockId + 1
     setMaxBlockId(maxBlockId + 1);
+
     return {"fail_count": fail_count, "total_count": total_count};
 }
 
