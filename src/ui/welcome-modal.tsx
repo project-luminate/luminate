@@ -4,13 +4,24 @@ import './welcome-modal.scss';
 import React, { useState } from 'react';
 import { Modal, Box, TextField} from '@mui/material';
 import { saveEnvVal } from '../util/util';
+import * as bootstrap from 'bootstrap';
 
 export function WelcomeModal( {updateApiKey}){
   const [open, setOpen] = useState(true);
 
   const handleClose = (event, reason) => {
-    if (reason !== 'backdropClick' && reason !== 'escapeKeyDown') {
+    if (reason !== 'backdropClick') {
       setOpen(false);
+    }
+    if (reason === 'escapeKeyDown') {
+      setOpen(false);
+      // use the toast to notify the user to set up the API key
+      let toast = new bootstrap.Toast(document.getElementById('fav-toast'));
+      var msg = document.getElementById('toast-text');
+      if (msg) {
+        msg.textContent =  "You need to set up the OpenAI API key to use Luminate. Please click on the settings icon in the top right corner to set it up.";
+        toast.show();
+      }
     }
   }
 

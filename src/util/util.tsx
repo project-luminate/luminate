@@ -120,7 +120,7 @@ export const startTutorial = () => {
                           <strong>Settings:</strong> You can enter your OpenAI API key and change the batch size and number of dimensions.\
                           The default batch size is 20 and the number of dimensions is 3.\
                       </div>\
-                      <img src="settings-input.png" alt="Semantic Zoom" style="width: auto; height: 350px; ">\
+                      <img src="settings-input.png" alt="Semantic Zoom" style="width: auto; height: 300px; border: 3px solid #eee; border-radius: 10px; ">\
                   </li>\
                   <li style=\"display: flex; gap: 10px; margin-bottom: 10px;\">\
                       <img src=\"about-menu.png\" alt=\"About\" style=\"width: 30px; height: 30px;\">\
