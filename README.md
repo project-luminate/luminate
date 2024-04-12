@@ -30,7 +30,7 @@ To use OpenAI API,
     
     ```
     @article{suh2023luminate,
-    title = {Structured Generation and Exploration of Design Space with Large Language Models for Human-AI Co-Creation},
+    title = {Luminate: Structured Generation and Exploration of Design Space with Large Language Models for Human-AI Co-Creation},
     author = {Suh, Sangho and Chen, Meng and Min, Bryan and Li, Toby Jia-Jun and Xia, Haijun},
     journal = {arXiv preprint arXiv:2310.12953},
     year = {2023},
