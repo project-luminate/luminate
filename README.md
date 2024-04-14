@@ -1,12 +1,20 @@
 # Luminate: Structured Generation and Exploration of Design Space with Large Language Models for Human-AI Co-Creation
 
-Luminate - an interactive system that enables structured generation and exploration of LLM outputs
+<p align="left">
+<img src="./public/luminate-interface.png" width="100%" style="vertical-align: middle;" alt="G"></img>
+</p>
 
-required: node.js v14.17.0
+Luminate is an interactive system that enables structured generation and exploration of LLM outputs.
+
+For a quick overview, watch this <a href="https://youtu.be/_H8yt2OS7FE?si=UJ7hpb2B7yX4VfVJ" target="_blank">30-sec preview video</a>. 
+
+For more details on the project, watch this <a href="https://youtu.be/CwVodmRuLds?si=qKHIbdtxWtICXCG8" target="_blank">6-min video</a> or read our <a href="https://arxiv.org/abs/2310.12953" target="_blank">paper</a>.
+
+You can also visit this <a href="https://luminate-research.github.io/" target="_blank">project page</a>.
 
 ## Installation
 
-If running for the first time, install dependencies:
+If running for the first time, install dependencies (required: node.js v14.17.0):
 
 `npm install`
 
