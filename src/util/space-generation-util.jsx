@@ -4,13 +4,12 @@ import useEditorStore from "../store/use-editor-store";
 import DatabaseManager from "../db/database-manager";
 import useSelectedStore from "../store/use-selected-store";
 import * as bootstrap from 'bootstrap';
-import { uuid, getEnvVal } from "./util";
+import { uuid, getCompletion } from "./util";
 import { generateCategoricalDimensions, validateFormatForDimensions } from "./gpt-util";
 
 const DELIMITER = "####";
 const MAX_TOKEN_BIG = 3500;
 const MAX_TOKEN_SMALL = 1000;
-const MODEL = "gpt-3.5-turbo-instruct";
 const TEMPERATURE = 0.7;
 const TOP_P = 1;
 
@@ -242,32 +241,16 @@ export async function addSimilarNodesToSpace(node, nodeMap, setNodeMap){
 async function generateResponse(message){
     // call the OpenAI API to generate a response
     try{
-        /* text-davinci-003 */
-        const response = await fetch('https://api.openai.com/v1/completions', {
-            method: 'POST',
-            headers: {
-            Authorization: `Bearer ${getEnvVal('VITE_OPENAI_API_KEY')}`,
-            'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-            model: MODEL,
-            prompt: `${message}`,
-            temperature: 0,
-            max_tokens: MAX_TOKEN_BIG,
-            top_p: TOP_P,
-            frequency_penalty: 0.75,
-            presence_penalty: 0,
-            stream: false
-            }),
-        });
-        const reader = response.body?.pipeThrough(new TextDecoderStream()).getReader();
-        if (!reader) {
-            throw new Error('No reader found');
-        }
-        const {value, done} = await reader.read();
+        const completion = await getCompletion(message, {
+      temperature: 0,
+      maxTokens: MAX_TOKEN_BIG,
+      topP: TOP_P,
+      frequencyPenalty: 0.75,
+      presencePenalty: 0,
+    });
         total_count += 1; // increment total count
-        if (value){
-            return JSON.parse(value)["choices"][0]["text"];
+        if (completion){
+            return completion;
         } else {
             throw new Error('No value found');
         }
@@ -421,30 +404,16 @@ async function summarizeText(text){
           "Structure": "<part 1>-<part 2>-<part 3>...",
           "Title": "<title>"
       }`;
-    const response = await fetch('https://api.openai.com/v1/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${getEnvVal('VITE_OPENAI_API_KEY')}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        prompt: `${message}`,
-        temperature: 0,
-        max_tokens: 256,
-        top_p: TOP_P,
-        frequency_penalty: 0.75,
-        presence_penalty: 0,
-      }),
+    const completion = await getCompletion(message, {
+      temperature: 0,
+      maxTokens: 256,
+      topP: TOP_P,
+      frequencyPenalty: 0.75,
+      presencePenalty: 0,
     });
-    const reader = response.body?.pipeThrough(new TextDecoderStream()).getReader();
-    if (!reader) {
-        throw new Error('No reader found');
-    }
-    const {value, done} = await reader.read();
-    // console.log("text summary",JSON.parse(value)["choices"][0]["text"]);
-    if (value){
-        return JSON.parse(value)["choices"][0]["text"];
+    // console.log("text summary",text);
+    if (completion){
+        return completion;
     } else {
         throw new Error('No value found');
     }
@@ -657,31 +626,16 @@ async function createLabelsFromDimension(prompt, dimensionName){
         "${dimensionName}": ["<label 1>", "<label 2>", "<label 3>"]
     }`;
 
-    const response = await fetch('https://api.openai.com/v1/completions', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${getEnvVal('VITE_OPENAI_API_KEY')}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: MODEL,
-          prompt: `${message}`,
-          temperature: TEMPERATURE,
-          max_tokens: MAX_TOKEN_BIG,
-          top_p: TOP_P,
-          frequency_penalty: 0.75,
-          presence_penalty: 0,
-          stream: false
-        }),
-      });
-    const reader = response.body?.pipeThrough(new TextDecoderStream()).getReader();
-    if (!reader) {
-        throw new Error('No reader found');
-    }
-    const {value, done} = await reader.read();
-    if (value){
-        console.log("value", JSON.parse(value)["choices"][0]["text"]);
-        return JSON.parse(value)["choices"][0]["text"];
+    const completion = await getCompletion(message, {
+      temperature: TEMPERATURE,
+      maxTokens: MAX_TOKEN_BIG,
+      topP: TOP_P,
+      frequencyPenalty: 0.75,
+      presencePenalty: 0,
+    });
+    if (completion){
+        console.log("value", completion);
+        return completion;
     } else {
         throw new Error('No value found');
     }

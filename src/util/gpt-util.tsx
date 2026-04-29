@@ -2,11 +2,10 @@ import useEditorStore from "../store/use-editor-store";
 import DatabaseManager from "../db/database-manager";
 import { nominalDimensionDef, ordinalDimensionDef } from "./prompts";
 import * as bootstrap from 'bootstrap';
-import { getEnvVal } from "./util";
+import { getCompletion } from "./util";
 
 const MAX_TOKEN_BIG = 1000;
 const MAX_TOKEN_SMALL = 256;
-const MODEL = "gpt-3.5-turbo-instruct";
 const TEMPERATURE = 0.7;
 const TOP_P = 1;
 
@@ -104,30 +103,15 @@ export async function generateCategoricalDimensions(prompt, catNum, valNum, temp
     `
 
     try {
-      const response = await fetch('https://api.openai.com/v1/completions', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${getEnvVal('VITE_OPENAI_API_KEY')}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: MODEL,
-            prompt: `${message}`,
-            temperature: temperature,
-            max_tokens: MAX_TOKEN_BIG,
-            top_p: TOP_P,
-            frequency_penalty: 0.75,
-            presence_penalty: 0,
-            stream: false
-          }),
-        });
-      if (!response.ok) {
-        throw new Error(`[Error] HTTP error! status: ${response.status}`);
-      }
-      const reader : any = response.body?.pipeThrough(new TextDecoderStream()).getReader();
-      const {value, done} = await reader.read();
-      console.log("categorical dimensions", JSON.parse(value)["choices"][0]["text"]);
-      return JSON.parse(value)["choices"][0]["text"];
+      const completion = await getCompletion(message, {
+      temperature: temperature,
+      maxTokens: MAX_TOKEN_BIG,
+      topP: TOP_P,
+      frequencyPenalty: 0.75,
+      presencePenalty: 0,
+    });
+      console.log("categorical dimensions", completion);
+      return completion;
 
     } catch (e) {
       let toast = new bootstrap.Toast(document.getElementById('error-toast'));
@@ -147,30 +131,15 @@ export async function generateOrdinalDimensions(prompt, catNum){
       "<dimension name>": ["<lowest degree>", "least", "moderate", "most", "<highest degree>"]
   }`
   try {
-    const response = await fetch('https://api.openai.com/v1/completions', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${getEnvVal('VITE_OPENAI_API_KEY')}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: MODEL,
-          prompt: `${message}`,
-          temperature: TEMPERATURE,
-          max_tokens: MAX_TOKEN_BIG,
-          top_p: TOP_P,
-          frequency_penalty: 0.75,
-          presence_penalty: 0,
-          stream: false
-        }),
-      });
-    if (!response.ok) {
-      throw new Error(`[Error] HTTP error! status: ${response.status}`);
-    }
-    const reader : any = response.body?.pipeThrough(new TextDecoderStream()).getReader();
-    const {value, done} = await reader.read();
-    console.log("ordinal dimensions", JSON.parse(value)["choices"][0]["text"]);
-    return JSON.parse(value)["choices"][0]["text"];
+    const completion = await getCompletion(message, {
+      temperature: TEMPERATURE,
+      maxTokens: MAX_TOKEN_BIG,
+      topP: TOP_P,
+      frequencyPenalty: 0.75,
+      presencePenalty: 0,
+    });
+    console.log("ordinal dimensions", completion);
+    return completion;
   } catch (e) {
     console.log(e);
     return null;
@@ -188,26 +157,15 @@ export async function generateNumericalDimensions(prompt, numNum){
     {
         "<dimension name>": [<lowest value>, <highest value>]
     }`;
-    const response = await fetch('https://api.openai.com/v1/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${getEnvVal('VITE_OPENAI_API_KEY')}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        prompt: `${message}`,
-        temperature: 0.7,
-        max_tokens: MAX_TOKEN_SMALL,
-        top_p: TOP_P,
-        frequency_penalty: 0.75,
-        presence_penalty: 0,
-      }),
+    const completion = await getCompletion(message, {
+      temperature: 0.7,
+      maxTokens: MAX_TOKEN_SMALL,
+      topP: TOP_P,
+      frequencyPenalty: 0.75,
+      presencePenalty: 0,
     });
-    const reader:any = response.body?.pipeThrough(new TextDecoderStream()).getReader();
-    const {value, done} = await reader.read();
-    console.log("numerical dimensions", JSON.parse(value)["choices"][0]["text"]);
-    return JSON.parse(value)["choices"][0]["text"];
+    console.log("numerical dimensions", completion);
+    return completion;
 }
 
 
@@ -243,25 +201,14 @@ export async function getRelatedTextBasedOnDimension(dimension, val, text){
         "2": "<original text 2>", 
         "3": "<original text 3>"
     }`;
-    const response = await fetch('https://api.openai.com/v1/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${getEnvVal('VITE_OPENAI_API_KEY')}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        prompt: `${message}`,
-        temperature: 0,
-        max_tokens: 256,
-        top_p: TOP_P,
-        frequency_penalty: 0.75,
-        presence_penalty: 0,
-      }),
+    const completion = await getCompletion(message, {
+      temperature: 0,
+      maxTokens: 256,
+      topP: TOP_P,
+      frequencyPenalty: 0.75,
+      presencePenalty: 0,
     });
-    const reader : any= response.body?.pipeThrough(new TextDecoderStream()).getReader();
-    const {value, done} = await reader.read();
-    return JSON.parse(value)["choices"][0]["text"];
+    return completion;
 }
 
 
@@ -329,25 +276,14 @@ export async function getKeyTextBasedOnDimension(kvPairs, text){
       "2": "<original text 2>", 
       "3": "<original text 3>"
   }`;
-  const response = await fetch('https://api.openai.com/v1/completions', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${getEnvVal('VITE_OPENAI_API_KEY')}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      prompt: `${message}`,
+  const completion = await getCompletion(message, {
       temperature: 0,
-      max_tokens: 256,
-      top_p: 1,
-      frequency_penalty: 0.75,
-      presence_penalty: 0,
-    }),
-  });
-  const reader : any  = response.body?.pipeThrough(new TextDecoderStream()).getReader();
-  const {value, done} = await reader.read();
-  let result  = JSON.parse(value)["choices"][0]["text"]
+      maxTokens: 256,
+      topP: 1,
+      frequencyPenalty: 0.75,
+      presencePenalty: 0,
+    });
+  let result = completion
   // only grep the {} part
   result = result.substring(result.indexOf("{"), result.lastIndexOf("}") + 1);
   return result;

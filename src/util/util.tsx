@@ -11,6 +11,53 @@ export const getEnvVal = (key: string): string => {
   return import.meta.env[key];
 }
 
+const DEFAULT_OPENAI_MODEL = "gpt-4o-mini";
+
+type CompletionOptions = {
+  temperature?: number;
+  maxTokens?: number;
+  topP?: number;
+  frequencyPenalty?: number;
+  presencePenalty?: number;
+};
+
+/*
+ * Send a prompt to the OpenAI Chat Completions API and return the text reply.
+ * The model can be overridden with VITE_OPENAI_MODEL.
+ * Markdown code fences around the reply are stripped so callers can JSON.parse it.
+ */
+export async function getCompletion(prompt: string, options: CompletionOptions = {}): Promise<string> {
+  const {
+    temperature = 0.7,
+    maxTokens = 1000,
+    topP = 1,
+    frequencyPenalty = 0,
+    presencePenalty = 0,
+  } = options;
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${getEnvVal('VITE_OPENAI_API_KEY')}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: getEnvVal('VITE_OPENAI_MODEL') || DEFAULT_OPENAI_MODEL,
+      messages: [{ role: 'user', content: prompt }],
+      temperature,
+      max_completion_tokens: maxTokens,
+      top_p: topP,
+      frequency_penalty: frequencyPenalty,
+      presence_penalty: presencePenalty,
+    }),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(`[Error] OpenAI HTTP ${response.status}: ${data?.error?.message ?? 'unknown error'}`);
+  }
+  const text: string = data.choices?.[0]?.message?.content ?? '';
+  return text.replace(/^\s*```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '');
+}
+
 export const colors : string[] = [
   '#FF6E67',
   '#6AB2FF',
